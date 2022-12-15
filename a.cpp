@@ -21,7 +21,7 @@ void covert()
 
     // The data is arranged in blocks of 4 samples. How many of these are there?
    // Scaler_1920_1080::V210_to_960_540_YUV(targetBuffer,sourceBuffer);
-Scaler_1920_1080YUV422::V210_to_960_540_YUV422(targetBuffer,sourceBuffer);
+Scaler_1920_1080YUV422::V210_to_960_540_YUV420(targetBuffer,sourceBuffer);
     fwrite(targetBuffer, 1920 * 1080 * 2, 1, fpD);
 }
 

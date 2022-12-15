@@ -43,18 +43,11 @@ namespace Scaler_1920_1080YUV422
 
 #pragma pack(pop)
 
-	void handleYUV(unsigned char*& cur, int c, int d, int e)
-	{
-		*cur++ = (c >> 2) & 0xFF;
-		*cur++ = (d >> 2) & 0xFF;
-		*cur++ = (e >> 2) & 0xFF;
-	};
-
-	void V210_to_960_540_YUV422(unsigned char* small960Frame, unsigned char* fullFrame)
+	void V210_to_960_540_YUV420(unsigned char* small960Frame, unsigned char* fullFrame)
 	{
 		uint8_t* pDestY = small960Frame;            // dest
 		uint8_t* pDestU = pDestY + 1920 * 1080;     // dest
-		uint8_t* pDestV = pDestU + 1920 * 1080 / 2; // dest
+		uint8_t* pDestV = pDestU + 1920 * 1080 / 4; // dest
 		unsigned char* cur;
 		int t_width = 0;
 		int destWidth = 960;
@@ -71,26 +64,30 @@ namespace Scaler_1920_1080YUV422
 		for (int h = 0; h < 1080; h++)
 		{
 			buffer = (unsigned int*)(fullFrame + h * lineSize);
+			uint32_t* nextLineBuffer = (uint32_t*)(fullFrame + (h+1) * lineSize);
 			for (int i = 0; i < step; i++)
 			{
 				Pixel2_1xV210* p = (Pixel2_1xV210*)buffer;
-
-				*pDestU++ = p->U0;
 				*pDestY++ = p->Y0;
-				*pDestV++ = p->V0;
 				*pDestY++ = p->Y1;
-
-				*pDestU++ = p->U1;
 				*pDestY++ = p->Y2;
-				*pDestV++ = p->V1;
 				*pDestY++ = p->Y3;
-
-				*pDestU++ = p->U2;
 				*pDestY++ = p->Y4;
-				*pDestV++ = p->V2;
 				*pDestY++ = p->Y5;
+				
+				if (h % 2 == 0)
+				{
+					Pixel2_1xV210* np = (Pixel2_1xV210*)nextLineBuffer;
 
+					*pDestU++ = (p->U0+  np->U0)/2;
+					*pDestU++ = (p->U1 + np->U1)/2;
+					*pDestU++ = (p->U2 + np->U2)/2;
+					*pDestV++ = (p->V0 + np->V0)/2;
+					*pDestV++ = (p->V1 + np->V1)/2;
+					*pDestV++ = (p->V2 + np->V2)/2;
+				}
 				buffer += 4;
+				nextLineBuffer += 4;
 			}
 		}
 	}
