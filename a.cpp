@@ -21,20 +21,44 @@ void covert()
     // The data is arranged in blocks of 4 samples. How many of these are there?
    // Scaler_1920_1080::V210_to_960_540_YUV(targetBuffer,sourceBuffer);
     Scaler_1920_1080YUV422::V210_to_960_540_YUV420(targetBuffer,sourceBuffer);
-    fopen_s(&fpD, "d:\\clips\\aa_960x540_uyvy.yuv", "wb");
+    fopen_s(&fpD, "d:\\clips\\aa1080_960x540_uyvy.yuv", "wb");
     fwrite(targetBuffer, 1920 * 1080 * 2, 1, fpD);
     fclose(fpD);
 
     Scaler_1920_1080YUV422::V210_to_480_270_YUV420(targetBuffer,sourceBuffer);
-    fopen_s(&fpD, "d:\\clips\\aa_480x270_uyvy.yuv", "wb");
+    fopen_s(&fpD, "d:\\clips\\aa1080_480x270_uyvy.yuv", "wb");
     fwrite(targetBuffer, 1920 * 1080 * 2, 1, fpD);
     fclose(fpD);
 
+
+	Scaler_1280_720_YUV422::V210_to_960_540_YUV420(targetBuffer, sourceBuffer);
+	fopen_s(&fpD, "d:\\clips\\aa720_960x540_uyvy.yuv", "wb");
+	fwrite(targetBuffer, 1920 * 1080 * 2, 1, fpD);
+	fclose(fpD);
+
+	Scaler_1280_720_YUV422::V210_to_480_270_YUV420(targetBuffer, sourceBuffer);
+	fopen_s(&fpD, "d:\\clips\\aa720_480x270_uyvy.yuv", "wb");
+	fwrite(targetBuffer, 1920 * 1080 * 2, 1, fpD);
+	fclose(fpD);
+
 }
 
+	void getYUV720_to_270(uint8_t *&pDestY, uint8_t *pDestU, uint8_t *pDestV, uint8_t *source)
+	{
+        pDestY+=111;
+    }
 int main()
 {
     printf("hhlll");
+
+    
+    uint8_t *targetBuffer = new uint8_t[1920 * 1080 * 10];
+    uint8_t*pY = targetBuffer;
+    uint8_t*pU = targetBuffer+1920*1080;
+    uint8_t*pV = targetBuffer+1920*1080*2;
+    printf("\n%p  %p  %p",pY,pU,pV);
+getYUV720_to_270(pY,pU,pV,pY);
+    printf("\n%p  %p  %p",pY,pU,pV);
     covert();
     return 0;
 }
