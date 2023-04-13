@@ -114,7 +114,7 @@ namespace v210_to_10packing
         int aaA = sizeof(Pixel_10packingAA);
         int a = sizeof(Pixel_10packing);
         int b = sizeof(Pixel2_1xV210);
-        Pixel_10packingA* p10 = (Pixel_10packingA*)p10Packing;
+        Pixel_10packingA *p10 = (Pixel_10packingA *)p10Packing;
         p10->U0 = 2;
         p10->V0 = 3;
         p10->Y0 = 4;
@@ -210,7 +210,43 @@ namespace v210_to_10packing
             }
         }
     }
+ 
+ void v210_to_UYVY10packing(uint8_t *pV210, uint8_t *pUyvy8, int width, int height)
+    {
+#define GET_linePitch(w) (((w + 47) / 48) * 48)
 
+        int linePitch = GET_linePitch(width);
+        int lineSize = (width / 48 + ((width % 48) ? 1 : 0)) * 128;
+        unsigned int *buffer = nullptr;
+        int32_t step = linePitch / 6;
+        for (int h = 0; h < height; h++)
+        {
+            buffer = (unsigned int *)(pV210 + h * lineSize);
+            for (int i = 0; i < step; i++)
+            {
+                Pixel2_1xV210 *p0 = (Pixel2_1xV210 *)buffer;
+                buffer += 4;
+                auto B10_to_B8 = [&](uint32_t value)
+                {
+                    uint8_t p = (value) >> 2;
+                    *pUyvy8++ = p;
+                };
+
+                B10_to_B8(p0->U0);
+                B10_to_B8(p0->Y0);
+                B10_to_B8(p0->V0);
+                B10_to_B8(p0->Y1);
+                B10_to_B8(p0->U1);
+                B10_to_B8(p0->Y2);
+                B10_to_B8(p0->V1);
+                B10_to_B8(p0->Y3);
+                B10_to_B8(p0->U2);
+                B10_to_B8(p0->Y4);
+                B10_to_B8(p0->V2);
+                B10_to_B8(p0->Y5);
+            }
+        }
+    }
     void v210_to_UYVY8(uint8_t *pV210, uint8_t *pUyvy8, int width, int height)
     {
 #define GET_linePitch(w) (((w + 47) / 48) * 48)
@@ -226,23 +262,23 @@ namespace v210_to_10packing
             {
                 Pixel2_1xV210 *p0 = (Pixel2_1xV210 *)buffer;
                 buffer += 4;
-#define A_W(x)                    \
+#define B10_to_B8(x)                    \
     {                             \
         uint8_t p = (p0->x) >> 2; \
         *pUyvy8++ = p;            \
     }
-                A_W(U0);
-                A_W(Y0);
-                A_W(V0);
-                A_W(Y1);
-                A_W(U1);
-                A_W(Y2);
-                A_W(V1);
-                A_W(Y3);
-                A_W(U2);
-                A_W(Y4);
-                A_W(V2);
-                A_W(Y5);
+                B10_to_B8(U0);
+                B10_to_B8(Y0);
+                B10_to_B8(V0);
+                B10_to_B8(Y1);
+                B10_to_B8(U1);
+                B10_to_B8(Y2);
+                B10_to_B8(V1);
+                B10_to_B8(Y3);
+                B10_to_B8(U2);
+                B10_to_B8(Y4);
+                B10_to_B8(V2);
+                B10_to_B8(Y5);
             }
         }
     }
