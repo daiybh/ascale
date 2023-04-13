@@ -10,7 +10,7 @@ void covert()
     uint8_t *targetBuffer = new uint8_t[1920 * 1080 * 10];
     uint8_t *sourceBuffer = new uint8_t[1920 * 1080 * 10];
     FILE *fps, *fpD;
-    fopen_s(&fps, R"(E:\clips\v210_1080.yuv)", "rb");
+    fopen_s(&fps, R"(d:\clips\v210_1080.yuv)", "rb");
     
     fseek(fps, 0, SEEK_END);
     int nLength = ftell(fps);
@@ -53,9 +53,9 @@ void covert()
 	fclose(fpD);
 
 }
-
 int main()
-{    
+{
     covert();
+    
     return 0;
 }

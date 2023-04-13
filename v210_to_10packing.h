@@ -1,52 +1,53 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <type_traits>
 namespace v210_to_10packing
 {
-#pragma pack(push,1)
+#pragma pack(push, 1)
 
-	struct Pixel2_1xV210
-	{
-		uint32_t U0 : 10;		
-		uint32_t Y0 : 10;		
-		uint32_t V0 : 10;
-		uint32_t : 2;
+    struct Pixel2_1xV210
+    {
+        uint32_t U0 : 10;
+        uint32_t Y0 : 10;
+        uint32_t V0 : 10;
+        uint32_t : 2;
 
-		uint32_t Y1 : 10;
-		uint32_t U1 : 10;
-		uint32_t Y2 : 10;
-		uint32_t : 2;
+        uint32_t Y1 : 10;
+        uint32_t U1 : 10;
+        uint32_t Y2 : 10;
+        uint32_t : 2;
 
-		uint32_t V1 : 10;
-		uint32_t Y3 : 10;
-		uint32_t U2 : 10;
-		uint32_t : 2;
+        uint32_t V1 : 10;
+        uint32_t Y3 : 10;
+        uint32_t U2 : 10;
+        uint32_t : 2;
 
-		uint32_t Y4 : 10;
-		uint32_t V2 : 10;
-		uint32_t Y5 : 10;
-		uint32_t : 2;
-	};
+        uint32_t Y4 : 10;
+        uint32_t V2 : 10;
+        uint32_t Y5 : 10;
+        uint32_t : 2;
+    };
 
     struct Pixel_10packingA
-	{
-        uint16_t U0 : 10;//FF 2
+    {
+        uint16_t U0 : 10; // FF 2
         uint16_t a : 6;
-        uint16_t Y0 : 10;//   2 FF
-        uint16_t V0 : 10;//        FF 2
-	};
-	struct Pixel_10packingAA
-	{
-        //40  5
-        //FFFFFFFF 
-        uint16_t U0 : 10;//FF 2
-		uint16_t Y0 : 10;//   2 FF
-		uint16_t V0 : 10;//        FF 2
-        uint16_t Y1 : 10;//           2 FF      //2(FF FF FF FF) +8 
-                         //FF F FF FF F FF
-                         //FF FF FF FF FF
-                         // 
-        //uint32_t:32 - 8;//FFFF
-	};
+        uint16_t Y0 : 10; //   2 FF
+        uint16_t V0 : 10; //        FF 2
+    };
+    struct Pixel_10packingAA
+    {
+        // 40  5
+        // FFFFFFFF
+        uint16_t U0 : 10; // FF 2
+        uint16_t Y0 : 10; //   2 FF
+        uint16_t V0 : 10; //        FF 2
+        uint16_t Y1 : 10; //           2 FF      //2(FF FF FF FF) +8
+                          // FF F FF FF F FF
+                          // FF FF FF FF FF
+                          //
+        // uint32_t:32 - 8;//FFFF
+    };
     struct Pixel_10packing
     {
         uint32_t U0 : 10;
@@ -72,29 +73,29 @@ namespace v210_to_10packing
 
 #pragma pack(pop)
 
-/*
-    12Pixels
-    16 bytes
+    /*
+        12Pixels
+        16 bytes
 
-    xxU0Y0V0
-    xxY1U1Y2
-    xxV1Y3U2
-    xxY4V2Y5
+        xxU0Y0V0
+        xxY1U1Y2
+        xxV1Y3U2
+        xxY4V2Y5
 
 
-    16 pixels
-    20 bytes
+        16 pixels
+        20 bytes
 
-    U0Y0V0Y1  40 
-    U1Y2V1Y3  40
-    U2Y4V2Y5  40
-    U3Y6V3Y7  40
-    
-    u8u8u8u8u8  32+8=40
+        U0Y0V0Y1  40
+        U1Y2V1Y3  40
+        U2Y4V2Y5  40
+        U3Y6V3Y7  40
 
-    
+        u8u8u8u8u8  32+8=40
 
-*/
+
+
+    */
     void v210_to_10packing(uint8_t *pV210, uint8_t *p10Packing, int width, int height)
     {
 #define GET_linePitch(w) (((w + 47) / 48) * 48)
@@ -104,35 +105,48 @@ namespace v210_to_10packing
 
         unsigned int *buffer = nullptr;
         int32_t step = linePitch / 6;
-        Pixel_10packingAA* pBox = (Pixel_10packingAA*)p10Packing;
-        Pixel_10packingAA* pBox2 = pBox + 1;
+        Pixel_10packingAA *pBox = (Pixel_10packingAA *)p10Packing;
+        Pixel_10packingAA *pBox2 = pBox + 1;
 
-		int aa = sizeof(Pixel_10packingA);
-		int aaA = sizeof(Pixel_10packingAA);
+        int aa = sizeof(Pixel_10packingA);
+
+        static_assert(sizeof(Pixel_10packingA) == 4, "sizeof(Pixel_10packingA) == 4.");
+        int aaA = sizeof(Pixel_10packingAA);
         int a = sizeof(Pixel_10packing);
         int b = sizeof(Pixel2_1xV210);
+        Pixel_10packingA* p10 = (Pixel_10packingA*)p10Packing;
+        p10->U0 = 2;
+        p10->V0 = 3;
+        p10->Y0 = 4;
+        p10->a = 5;
         for (int h = 0; h < height; h++)
         {
             buffer = (unsigned int *)(pV210 + h * lineSize);
-            for (int i = 0; i < step/4; i++)
+            for (int i = 0; i < step / 4; i++)
             {
 
                 // 4*Pixel2_1xV210  3*Pixel_10packing
-                Pixel2_1xV210 *p0 = (Pixel2_1xV210 *)buffer;                buffer += 4;
-                Pixel2_1xV210 *p1 = (Pixel2_1xV210 *)buffer;                buffer += 4;
-                Pixel2_1xV210 *p2 = (Pixel2_1xV210 *)buffer;                buffer += 4;
-                Pixel2_1xV210 *p3 = (Pixel2_1xV210 *)buffer;                buffer += 4;
+                Pixel2_1xV210 *p0 = (Pixel2_1xV210 *)buffer;
+                buffer += 4;
+                Pixel2_1xV210 *p1 = (Pixel2_1xV210 *)buffer;
+                buffer += 4;
+                Pixel2_1xV210 *p2 = (Pixel2_1xV210 *)buffer;
+                buffer += 4;
+                Pixel2_1xV210 *p3 = (Pixel2_1xV210 *)buffer;
+                buffer += 4;
 
-                Pixel_10packing*pDest0 = (Pixel_10packing*)p10Packing;      p10Packing+=20;
-                Pixel_10packing*pDest1 = (Pixel_10packing*)p10Packing;      p10Packing+=20;
-                Pixel_10packing*pDest2 = (Pixel_10packing*)p10Packing;      p10Packing+=20;
+                Pixel_10packing *pDest0 = (Pixel_10packing *)p10Packing;
+                p10Packing += 20;
+                Pixel_10packing *pDest1 = (Pixel_10packing *)p10Packing;
+                p10Packing += 20;
+                Pixel_10packing *pDest2 = (Pixel_10packing *)p10Packing;
+                p10Packing += 20;
 
-				/**dstUYVY++ = src[0];
-				*dstUYVY++ = (src[1] >> 2);
-				*dstUYVY++ = (src[1] << 6) | (src[2] >> 4);
-				*dstUYVY++ = (src[2] << 4) | (src[3] >> 6);
-				*dstUYVY++ = (src[3] << 2);*/
-
+                /**dstUYVY++ = src[0];
+                 *dstUYVY++ = (src[1] >> 2);
+                 *dstUYVY++ = (src[1] << 6) | (src[2] >> 4);
+                 *dstUYVY++ = (src[2] << 4) | (src[3] >> 6);
+                 *dstUYVY++ = (src[3] << 2);*/
 
                 pDest0->U0 = p0->U0;
                 pDest0->Y0 = p0->Y0;
@@ -152,8 +166,8 @@ namespace v210_to_10packing
                 pDest0->U3 = p1->U0;
                 pDest0->Y6 = p1->Y0;
                 pDest0->V3 = p1->V0;
-                pDest0->Y7 = p1->Y1;    
-                
+                pDest0->Y7 = p1->Y1;
+
                 pDest1->U0 = p1->U1;
                 pDest1->Y0 = p1->Y2;
                 pDest1->V0 = p1->V1;
@@ -193,9 +207,42 @@ namespace v210_to_10packing
                 pDest2->Y6 = p3->Y4;
                 pDest2->V3 = p3->V2;
                 pDest2->Y7 = p3->Y5;
+            }
+        }
+    }
 
+    void v210_to_UYVY8(uint8_t *pV210, uint8_t *pUyvy8, int width, int height)
+    {
+#define GET_linePitch(w) (((w + 47) / 48) * 48)
 
-
+        int linePitch = GET_linePitch(width);
+        int lineSize = (width / 48 + ((width % 48) ? 1 : 0)) * 128;
+        unsigned int *buffer = nullptr;
+        int32_t step = linePitch / 6;
+        for (int h = 0; h < height; h++)
+        {
+            buffer = (unsigned int *)(pV210 + h * lineSize);
+            for (int i = 0; i < step; i++)
+            {
+                Pixel2_1xV210 *p0 = (Pixel2_1xV210 *)buffer;
+                buffer += 4;
+#define A_W(x)                    \
+    {                             \
+        uint8_t p = (p0->x) >> 2; \
+        *pUyvy8++ = p;            \
+    }
+                A_W(U0);
+                A_W(Y0);
+                A_W(V0);
+                A_W(Y1);
+                A_W(U1);
+                A_W(Y2);
+                A_W(V1);
+                A_W(Y3);
+                A_W(U2);
+                A_W(Y4);
+                A_W(V2);
+                A_W(Y5);
             }
         }
     }
