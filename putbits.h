@@ -119,9 +119,24 @@ static inline void flush_bitbuf(stream_t *str, int bytes)
 //Y-->9876543210
 //     10987654
 //     98765432
+#include <bitset>
+#include <string>
 
+
+
+template<typename T>
+void to_binary(const char*marker,T val)
+{
+	std::bitset<sizeof(T)*CHAR_BIT> bs(val);
+
+	printf("\n %s==>",marker);
+	printf(bs.to_string().c_str());
+
+
+}
 static inline unsigned int putbits(unsigned int n, unsigned int val, stream_t *str)
 {
+	to_binary("start ",val);
 	unsigned int rest;
 
 	if (n <= str->bitrest)
@@ -137,6 +152,8 @@ static inline unsigned int putbits(unsigned int n, unsigned int val, stream_t *s
 		str->bitbuf |= (val & mask(rest)) << (32 - rest);
 		str->bitrest -= rest;
 	}
+
+	to_binary("stop  ",str->bitbuf);
 
 	return n;
 }

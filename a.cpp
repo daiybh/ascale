@@ -58,13 +58,17 @@ int main()
 {
     #define MAX_BUFFER_SIZE 10
     stream_t stream;
-  stream.bitstream = (uint8_t *)malloc(MAX_BUFFER_SIZE * sizeof(uint8_t));
+
+    int bufferSize = MAX_BUFFER_SIZE * sizeof(uint8_t);
+    uint8_t* pBuffer = (uint8_t*)malloc(bufferSize);
+    memset(pBuffer, 0, bufferSize);
+    stream.bitstream = pBuffer;
   stream.bitbuf = 0;
   stream.bitrest = 32;
   stream.bytepos = 0;
   stream.bytesize = MAX_BUFFER_SIZE;
 
-  int a = 0x201;
+  int a = 0b1000000001;  
   putbits(10, a, &stream);
 
   a = 0x303;
@@ -72,6 +76,18 @@ int main()
 
   a = 0x387;
   putbits(10, a, &stream);
+
+  a = 0;
+  putbits(10, a, &stream);
+  uint32_t* p32 = (uint32_t*)pBuffer;
+  to_binary("p32", *p32);
+
+  uint8_t* p8 = (uint8_t*)pBuffer;
+  to_binary("p8 ", *p8++);
+  to_binary("p8 ", *p8++);
+  to_binary("p8 ", *p8++);
+  to_binary("p8 ", *p8++);
+
 
   //
   //U-->val: 9876543210          bitrest:8  n:10 
