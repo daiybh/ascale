@@ -1,3 +1,4 @@
+#pragma once
 #include <stdint.h>
 #include <stdio.h>
 class PutBit
@@ -132,11 +133,21 @@ void to_binary(const char*marker,T val)
 	printf("\n %s==>",marker);
 	printf(bs.to_string().c_str());
 
+	auto ull = bs.to_ullong();
+
+	printf("    %08x\n",ull);
+	for (int i = bs.size()-1; i >-1; i--)
+	{
+		int a = bs[i];
+		printf("%s%d", ((i +1) % 10 == 0) ? " " : "", a);
+	}
+
 
 }
-static inline unsigned int putbits(unsigned int n, unsigned int val, stream_t *str)
+static inline unsigned int putbits(unsigned int n, unsigned int val, stream_t *str,bool bDebug=false)
 {
-	to_binary("start ",val);
+	if(bDebug)
+		to_binary("start ",val);
 	unsigned int rest;
 
 	if (n <= str->bitrest)
@@ -153,6 +164,7 @@ static inline unsigned int putbits(unsigned int n, unsigned int val, stream_t *s
 		str->bitrest -= rest;
 	}
 
+	if (bDebug)
 	to_binary("stop  ",str->bitbuf);
 
 	return n;

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <type_traits>
+#include "putbits.h"
 namespace v210_to_10packing
 {
 #pragma pack(push, 1)
@@ -72,7 +73,39 @@ namespace v210_to_10packing
     };
 
 #pragma pack(pop)
+    void Convert_UYVY10bitBytePacking_to_V210(const uint8_t* srcUYVY10bitBytePacking, uint8_t* targetV210, int32_t w, int32_t h)
+    {
+        const unsigned char* src = (unsigned char*)srcUYVY10bitBytePacking;
+        const auto           nr4Samples = w * h / 2;
 
+        unsigned short values[4];
+
+        stream_t stream;
+
+       
+        uint8_t* pBuffer = targetV210;
+        stream.bitstream = pBuffer;
+        stream.bitbuf = 0;
+        stream.bitrest = 32;
+        stream.bytepos = 0;
+        stream.bytesize = 1920 * 1080 * 4;
+        int nWriteBytes = 0;
+        printf("start ==>---------|---------|---------|xx\n");
+        for (unsigned i = 0; i < nr4Samples; i++)
+        {
+            values[0] = (src[0] << 2) + (src[1] >> 6);
+            values[1] = ((src[1] & 0x3f) << 4) + (src[2] >> 4);
+            values[2] = ((src[2] & 0x0f) << 6) + (src[3] >> 2);
+            values[3] = ((src[3] & 0x03) << 8) + src[4];
+
+            putbits(10, values[0], &stream,i<10); nWriteBytes += 10; if (nWriteBytes == 30) { putbits(2, 0, &stream); nWriteBytes = 0; }
+            putbits(10, values[1], &stream,i<10); nWriteBytes += 10; if (nWriteBytes == 30) { putbits(2, 0, &stream); nWriteBytes = 0; }
+            putbits(10, values[2], &stream,i<10); nWriteBytes += 10; if (nWriteBytes == 30) { putbits(2, 0, &stream); nWriteBytes = 0; }
+            putbits(10, values[3], &stream,i<10); nWriteBytes += 10; if (nWriteBytes == 30) { putbits(2, 0, &stream); nWriteBytes = 0; }
+            
+            src += 5;
+        }
+    }
     /*
         12Pixels
         16 bytes
