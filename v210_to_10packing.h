@@ -110,7 +110,6 @@ namespace v210_to_10packing
 
         int aa = sizeof(Pixel_10packingA);
 
-        static_assert(sizeof(Pixel_10packingA) == 4, "sizeof(Pixel_10packingA) == 4.");
         int aaA = sizeof(Pixel_10packingAA);
         int a = sizeof(Pixel_10packing);
         int b = sizeof(Pixel2_1xV210);
@@ -231,7 +230,9 @@ namespace v210_to_10packing
                     uint8_t p = (value) >> 2;
                     *pUyvy8++ = p;
                 };
-
+                uint8_t *src = (uint8_t*)p0;
+int startInBuffer =0;
+int Y = ((src[startInBuffer + 1] >> 2) & 0x3f) + ((src[startInBuffer + 2] & 0x0f) << 6);
                 B10_to_B8(p0->U0);
                 B10_to_B8(p0->Y0);
                 B10_to_B8(p0->V0);

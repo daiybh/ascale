@@ -16,7 +16,8 @@ static void Convert_UYVY10bitBytePacking_to_UYVY8bit(const uint8_t* srcUYVY10bit
 	unsigned short values[4];
 	for (unsigned i = 0; i < nr4Samples; i++)
 	{
-		values[0] = (src[0] << 2) + (src[1] >> 6);
+		//98765432
+		values[0] = (src[0] << 2) + (src[1] >> 6);  //98765432   10
 		values[1] = ((src[1] & 0x3f) << 4) + (src[2] >> 4);
 		values[2] = ((src[2] & 0x0f) << 6) + (src[3] >> 2);
 		values[3] = ((src[3] & 0x03) << 8) + src[4];
@@ -70,6 +71,10 @@ public:
 
 	void putBits(int32_t _n, uint32_t _value)
 	{
+		// 0000000001
+		//  
+		//0000000001 0000000011
+		//xx 0000000001 0000000011 0000000111 xx
 		if (_n < bit_left)
 		{
 			bit_buf = (bit_buf << _n) | _value;

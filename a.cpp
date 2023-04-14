@@ -53,8 +53,44 @@ void covert()
 	fclose(fpD);
 
 }
+#include "putbits.h"
 int main()
 {
+    #define MAX_BUFFER_SIZE 10
+    stream_t stream;
+  stream.bitstream = (uint8_t *)malloc(MAX_BUFFER_SIZE * sizeof(uint8_t));
+  stream.bitbuf = 0;
+  stream.bitrest = 32;
+  stream.bytepos = 0;
+  stream.bytesize = MAX_BUFFER_SIZE;
+
+  int a = 0x201;
+  putbits(10, a, &stream);
+
+  a = 0x303;
+  putbits(10, a, &stream);
+
+  a = 0x387;
+  putbits(10, a, &stream);
+
+  //
+  //U-->val: 9876543210          bitrest:8  n:10 
+  //
+  //FILL       76543210
+  //LEFT 2           98 
+  //Y-->9876543210
+  //FILL      54321098
+  //LEFT 4         9876
+  //V-->9876543210
+  //FILL      32109876
+  //LEFT 2      987654
+  //xx--->xx
+  //FILL      xx987654
+  //left 0
+
+
+
+    printf("hhhhhjh\n$$$$$$$$$$$$$$$$$$$$$$$$$\n");
     covert();
     
     return 0;
