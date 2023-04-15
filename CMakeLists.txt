@@ -9,4 +9,4 @@ project ("Fee")
 
 
 
-add_executable(Fee "a.cpp")
+add_executable(Fee "a.cpp" "uyvy8bit_toAny.h" "pixelHeader.h" "yuv10packing_toAny.h")
