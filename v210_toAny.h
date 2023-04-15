@@ -18,16 +18,11 @@ namespace v210_to_10packing
 			buffer = (unsigned int *)(pV210 + h * lineSize);
 			for (int i = 0; i < step/4; i++)
 			{
-				Pixel2_1xV210 *p0 = (Pixel2_1xV210 *)buffer;
-				buffer += 4;
-				Pixel2_1xV210 *p1 = p0 + 1;
-				buffer += 4;
-				Pixel2_1xV210 *p2 = p1 + 1;
-				buffer += 4;
-				Pixel2_1xV210 *p3 = p1 + 1;
-				buffer += 4;
-				Pixel2_1xV210 *p4 = p1 + 1;
-				buffer += 4;
+				Pixel2_1xV210 *p0 = (Pixel2_1xV210 *)buffer;				buffer += 4;
+				Pixel2_1xV210 *p1 = p0 + 1;				buffer += 4;
+				Pixel2_1xV210 *p2 = p1 + 1;				buffer += 4;
+				Pixel2_1xV210 *p3 = p2 + 1;				buffer += 4;
+				Pixel2_1xV210 *p4 = p3 + 1;				buffer += 4;
 				auto B10_to_B8 = [&](short svalue0, short svalue1, short svalue2, short svalue3)
 				{
 					uint8_t value0 = (svalue0 >> 2)&0xFF;
