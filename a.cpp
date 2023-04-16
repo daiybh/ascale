@@ -31,21 +31,21 @@ void covert_V210_t0_10packing()
     // 
     v210_to_10packing::v210_to_UYVY10packing(sourceBuffer, targetYUV10Packing_Buffer, 1920,1080);
     {
-        fopen_s(&fpD, "d:\\clips\\aa1080_1920x1080_v210_to_UYVY10packing.yuv", "wb");
+        fopen_s(&fpD, "d:\\clips\\a\\a_v210_to_UYVY10_1920x1080.yuv", "wb");
         fwrite(targetYUV10Packing_Buffer, 1920 * 1080 * 6, 1, fpD);
         fclose(fpD);
     }
 
     v210_to_10packing::v210_to_UYVY8(sourceBuffer, targetUYVY8_Buffer, 1920, 1080);
     {
-        fopen_s(&fpD, "d:\\clips\\aa1080_1920x1080_uyvy.yuv", "wb");
+        fopen_s(&fpD, "d:\\clips\\a\\a_v210_to_UYVY8_1920x1080.yuv", "wb");
         fwrite(targetUYVY8_Buffer, 1920 * 1080 * 6, 1, fpD);
         fclose(fpD);
     }
 
     UYVY8bit_to_UYVY10bitBytePacking(targetUYVY8_Buffer, targetYUV10Packing_Buffer, 1920, 1080);
     {
-        fopen_s(&fpD, "d:\\clips\\aa1080_1920x1080_10packing.yuv", "wb");
+        fopen_s(&fpD, "d:\\clips\\a\\a_UYVY8bit_to_UYVY10bit_1920x1080_.yuv", "wb");
         fwrite(targetYUV10Packing_Buffer, 1920 * 1080 * 6, 1, fpD);
         fclose(fpD);
     }
@@ -53,7 +53,7 @@ void covert_V210_t0_10packing()
     memset(targetYUV10Packing_Buffer, 0, 1920 * 1080 * 10);
     UYVY8bit_to_v210(targetUYVY8_Buffer, targetYUV10Packing_Buffer, 1920, 1080);
     {
-        fopen_s(&fpD, "d:\\clips\\aa1080_1920x1080_v210.yuv", "wb");
+        fopen_s(&fpD, "d:\\clips\\a\\a_UYVY8bit_to_v210_1920x1080.yuv", "wb");
         fwrite(targetYUV10Packing_Buffer, 1920 * 1080 * 6, 1, fpD);
         fclose(fpD);
     }

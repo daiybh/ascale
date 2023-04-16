@@ -12,46 +12,38 @@ namespace v210_to_10packing
 		int linePitch = GET_linePitch(width);
 		int lineSize = (width / 48 + ((width % 48) ? 1 : 0)) * 128;
 		int32_t step = linePitch / 6;
-		FILE* fp = fopen("d:\\clips\\aa_1920x1080_uyvy.yuv", "wb");
-
 		for (int h = 2; h < height; h++)
 		{
-			Pixel2_1xV210* p0 = (Pixel2_1xV210*)(pV210 + h * lineSize);
-			for (int i = 0; i < step/4; i++, p0+=5)
+			Pixel2_1xV210* ppV210 = (Pixel2_1xV210*)(pV210 + h * lineSize);
+			for (int i = 0; i < step/5; i++)
 			{
+				Pixel2_1xV210* p0 = ppV210;
 				Pixel2_1xV210 *p1 = p0 + 1;				
 				Pixel2_1xV210 *p2 = p1 + 1;				
 				Pixel2_1xV210 *p3 = p2 + 1;				
-				Pixel2_1xV210 *p4 = p3 + 1;				
+				Pixel2_1xV210 *p4 = p3 + 1;			
+				ppV210 += 5;
 				auto B10_to_B8 = [&](short svalue0, short svalue1, short svalue2, short svalue3)
-				{
-					uint8_t value0 = (svalue0 >> 2)&0xFF;
-					uint8_t value1 = (svalue1 >> 2) & 0xFF;
-					uint8_t value2 = (svalue2 >> 2) & 0xFF;
-					uint8_t value3 = (svalue3 >> 2) & 0xFF;
-					uint8_t src[4] = { value0,value1,value2,value3 };
-					/*
-					
-					|--value--| |--value1| |-value2-|   |--value3--| 
-					98765432 10 987654 3210 9876 543210 98 76543210 
-					|------| |-------|
-					
+				{					
+					/*					
+					|------value---| |-----value1---| |-----value2---| |-----value3---| 
+					xxxxxx9876543210 xxxxxx9876543210 xxxxxx9876543210 xxxxxx9876543210
+					      9876543210       9876543210       9876543210       9876543210
+				    >>2   98765432 
+					              10       9876543210       9876543210       9876543210
+                                  10       987654
+									             3210       9876543210       9876543210
+									             3210       9876
+									                            543210       9876543210
+									                            543210       98
+									                                           76543210									             
+					*/			
 					*pUyvy8++ = svalue0 >> 2;               //value0.98765432
 					*pUyvy8++ = (svalue0 << 6) | (svalue1 >> 4);    //10 987654
-					*pUyvy8++ = (svalue1 << 4) | (svalue2 >> 4);    //3210 9876
-					*pUyvy8++ = (svalue2 << 2) | (svalue3 >> 6);    //543210 98
+					*pUyvy8++ = (svalue1 << 4) | (svalue2 >> 6);    //3210 9876
+					*pUyvy8++ = (svalue2 << 2) | (svalue3 >> 8);    //543210 98
 					*pUyvy8++ = svalue3;                           //76543210	
-*/
-					*pUyvy8++ = src[0];       //src[0] U
-					*pUyvy8++ = (src[1] >> 2);  //src[1] Y
-					*pUyvy8++ = (src[1] << 6) | (src[2] >> 4);
-					*pUyvy8++ = (src[2] << 4) | (src[3] >> 6);
-					*pUyvy8++ = (src[3] << 2);
-
-					fwrite(&src[0], 1, 1, fp);
-					fwrite(&src[1], 1, 1, fp);
-					fwrite(&src[2], 1, 1, fp);
-					fwrite(&src[3], 1, 1, fp);
+					
 				};
 				//4*Pixel2_1xV210 ==3*sizeof(10bitpacking)
 				B10_to_B8(p0->U0, p0->Y0, p0->V0, p0->Y1);
@@ -85,8 +77,8 @@ namespace v210_to_10packing
 		int32_t step = linePitch / 6;
 		for (int h = 0; h < height; h++)
 		{
-			Pixel2_1xV210* p0 = (Pixel2_1xV210*)(pV210 + h * lineSize);
-			for (int i = 0; i < step; i++,p0++)
+			Pixel2_1xV210* ppV210 = (Pixel2_1xV210*)(pV210 + h * lineSize);
+			for (int i = 0; i < step; i++)
 			{
 				auto B10_to_B8 = [&](short svalue0, short svalue1, short svalue2, short svalue3)
 				{
@@ -101,10 +93,12 @@ namespace v210_to_10packing
 					*pUyvy8++ = (src[2]);
 					*pUyvy8++ = (src[3]);					
 				};
+				Pixel2_1xV210* p0 = ppV210++;
 
 				B10_to_B8(p0->U0, p0->Y0, p0->V0, p0->Y1);
 				B10_to_B8(p0->U1, p0->Y2, p0->V1, p0->Y3);
 				B10_to_B8(p0->U2, p0->Y4, p0->V2, p0->Y5);
+				
 			}
 		}
 	}
