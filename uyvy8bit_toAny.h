@@ -43,7 +43,7 @@ static void UYVY8bit_to_UYVY10bitBytePacking(const uint8_t* sourceUYVY8bits, uin
 	for (unsigned i = 0; i < nr4Samples; i++)
 	{
 		/*
-		|-byte0-|| -byte1-||-byte2 -|| -byte3 - || -byte4 - |
+		|-byte0-|| -byte1-||-byte2 -|| -byte3 - | 
 		 98765432 10987654  32109876   54321098 76543210
 		|---U------| ----Y---- - | ----V---- - | ----Y---- - |
 		 98765432 xx 987654 32xx   9876 5432xx   98765432xx
