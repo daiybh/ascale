@@ -1,48 +1,7 @@
 #include <stdio.h>
+#include "pixelHeader.h"
 namespace Scaler_1920_1080YUV422
 {
-
-#pragma pack(push,1)
-
-	struct Pixel2_1xV210
-	{
-		uint32_t : 2;
-		uint32_t U0 : 8;
-		uint32_t : 2;
-		uint32_t Y0 : 8;
-		uint32_t : 2;
-		uint32_t V0 : 8;
-		uint32_t : 2;
-
-
-		uint32_t : 2;
-		uint32_t Y1 : 8;
-		uint32_t : 2;
-		uint32_t U1 : 8;
-		uint32_t : 2;
-		uint32_t Y2 : 8;
-		uint32_t : 2;
-
-
-		uint32_t : 2;
-		uint32_t V1 : 8;
-		uint32_t : 2;
-		uint32_t Y3 : 8;
-		uint32_t : 2;
-		uint32_t U2 : 8;
-		uint32_t : 2;
-
-		uint32_t : 2;
-		uint32_t Y4 : 8;
-		uint32_t : 2;
-		uint32_t V2 : 8;
-		uint32_t : 2;
-		uint32_t Y5 : 8;
-		uint32_t : 2;
-	};
-
-#pragma pack(pop)
-
 	void V210_to_960_540_YUV420(unsigned char* small960Frame, unsigned char* fullFrame)
 	{
 		int destW=960;

@@ -1,46 +1,7 @@
 #include <stdio.h>
+#include "pixelHeader.h"
 namespace Scaler_1280_720_YUV422
 {
-
-#pragma pack(push, 1)
-
-	struct Pixel2_1xV210
-	{
-		uint32_t : 2;
-		uint32_t U0 : 8;
-		uint32_t : 2;
-		uint32_t Y0 : 8;
-		uint32_t : 2;
-		uint32_t V0 : 8;
-		uint32_t : 2;
-
-		uint32_t : 2;
-		uint32_t Y1 : 8;
-		uint32_t : 2;
-		uint32_t U1 : 8;
-		uint32_t : 2;
-		uint32_t Y2 : 8;
-		uint32_t : 2;
-
-		uint32_t : 2;
-		uint32_t V1 : 8;
-		uint32_t : 2;
-		uint32_t Y3 : 8;
-		uint32_t : 2;
-		uint32_t U2 : 8;
-		uint32_t : 2;
-
-		uint32_t : 2;
-		uint32_t Y4 : 8;
-		uint32_t : 2;
-		uint32_t V2 : 8;
-		uint32_t : 2;
-		uint32_t Y5 : 8;
-		uint32_t : 2;
-	};
-
-#pragma pack(pop)
-
 	void getYUV720_to_270(bool bHaveUV,uint8_t *&pDestY, uint8_t *& pDestU, uint8_t *& pDestV, uint8_t *source)
 	{
 		unsigned int *buffer = (unsigned int *)source;
