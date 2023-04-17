@@ -67,7 +67,7 @@ void covert_10packing_to_V210()
     uint8_t* targetBuffer = new uint8_t[1920 * 1080 * 10];
     uint8_t* sourceBuffer = new uint8_t[1920 * 1080 * 10];
     FILE* fps, * fpD;
-    fopen_s(&fps, R"(D:\Codes\backend\Test\clips\UYVY_422p10_LE_BytePacking.yuv)", "rb");
+    fopen_s(&fps, R"(f:\Codes\backend\Test\clips\UYVY_422p10_LE_BytePacking.yuv)", "rb");
 
     fseek(fps, 0, SEEK_END);
     int nLength = ftell(fps);
@@ -76,93 +76,19 @@ void covert_10packing_to_V210()
     fread(sourceBuffer, nLength, 1, fps);
     fclose(fps);
 
-    memset(targetBuffer, 0, 1920 * 1080 * 4);
+    memset(targetBuffer, 0, 1920 * 1080 * 6);
+    Convert_UYVY10bitBytePacking_to_V210(sourceBuffer, targetBuffer, 1920, 1080);
    // v210_to_10packing::Convert_UYVY10bitBytePacking_to_V210(sourceBuffer, targetBuffer, 1920, 1080);
 
     fopen_s(&fpD, "d:\\clips\\covert_10packing_to_V210_1920x1080.yuv", "wb");
-    fwrite(targetBuffer, 1920 * 1080 * 4, 1, fpD);
+    fwrite(targetBuffer, 1920 * 1080 * 6, 1, fpD);
     fclose(fpD);
 
 }
-#include "putbits.h"
-
-void bits_10bits_to_v210()
-{
-#define MAX_BUFFER_SIZE 10
-    stream_t stream;
-
-    int bufferSize = MAX_BUFFER_SIZE * sizeof(uint8_t);
-    uint8_t* pBuffer = (uint8_t*)malloc(bufferSize);
-    memset(pBuffer, 0, bufferSize);
-    stream.bitstream = pBuffer;
-    stream.bitbuf = 0;
-    stream.bitrest = 32;
-    stream.bytepos = 0;
-    stream.bytesize = MAX_BUFFER_SIZE;
-
-    int a = 0b1000000001;
-    putbits(10, a, &stream);
-
-    a = 0x303;
-    putbits(10, a, &stream);
-
-    a = 0x387;
-    putbits(10, a, &stream);
-
-    a = 0;
-    putbits(10, a, &stream);
-    uint32_t* p32 = (uint32_t*)pBuffer;
-    to_binary("p32", *p32);
-
-    uint8_t* p8 = (uint8_t*)pBuffer;
-    to_binary("p8 ", *p8++);
-    to_binary("p8 ", *p8++);
-    to_binary("p8 ", *p8++);
-    to_binary("p8 ", *p8++);
-}
-
-void bits_210_to_10bits()
-{
-#define MAX_BUFFER_SIZE 10
-    stream_t stream;
-
-    int bufferSize = MAX_BUFFER_SIZE * sizeof(uint8_t);
-    uint8_t* pBuffer = (uint8_t*)malloc(bufferSize);
-    memset(pBuffer, 0, bufferSize);
-    stream.bitstream = pBuffer;
-    stream.bitbuf = 0;
-    stream.bitrest = 32;
-    stream.bytepos = 0;
-    stream.bytesize = MAX_BUFFER_SIZE;
-
-    int a = 0b1000000011;
-    putbits(10, a, &stream);
-
-    a = 0b1000000111;
-    putbits(10, a, &stream);
-
-    a = 0b1000001111;
-    putbits(10, a, &stream);
-
-    a = 0;
-    putbits(10, a, &stream);
-    uint32_t* p32 = (uint32_t*)pBuffer;
-    to_binary("p32", *p32);
-
-    uint8_t* p8 = (uint8_t*)pBuffer;
-    to_binary("p8 ", *p8++);
-    to_binary("p8 ", *p8++);
-    to_binary("p8 ", *p8++);
-    to_binary("p8 ", *p8++);
-}
 int main()
 {
-   
-
-
-
     printf("hhhhhjh\n$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-    //covert_10packing_to_V210();
-    covert_V210_t0_10packing();
+    covert_10packing_to_V210();
+    //covert_V210_t0_10packing();
     return 0;
 }
