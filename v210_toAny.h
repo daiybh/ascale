@@ -3,9 +3,9 @@
 #include <type_traits>
 #include "putbits.h"
 #include "pixelHeader.h"
-namespace v210_to_10packing
+namespace v210
 {
-	void v210_to_UYVY10packing(uint8_t *pV210, uint8_t *pUyvy8, int width, int height)
+	void to_UYVY10packing(uint8_t *pV210, uint8_t *pUyvy8, int width, int height)
 	{
 #define GET_linePitch(w) (((w + 47) / 48) * 48)
 
@@ -67,7 +67,7 @@ namespace v210_to_10packing
 		}
 	}
 
-	void v210_to_UYVY8(uint8_t *pV210, uint8_t *pUyvy8, int width, int height)
+	void to_UYVY8(uint8_t *pV210, uint8_t *pUyvy8, int width, int height)
 	{
 #define GET_linePitch(w) (((w + 47) / 48) * 48)
 
