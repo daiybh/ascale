@@ -51,12 +51,12 @@ jobs:
         cwd: ${{github.workspace}}
         files: |
           ${{github.workspace}}/bin/
-        outPath: ${{env.ARTIFACT_NAME}}
+        outPath: ${{github.sha}}-${{env.ARTIFACT_NAME}}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{env.ARTIFACT_NAME}}
-        path: ${{github.workspace}}
+        name: "ARTIFACT_NAME"
+        path: ${{github.workspace}}/${{github.sha}}-${{env.ARTIFACT_NAME}}
         
     
