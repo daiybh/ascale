@@ -11,7 +11,8 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
-  ARTIFACT_NAME: scale-linux.tar.gz
+  ARTIFACT_NAME: ${{ github.event.repository.name }}.${{github.sha}}.tar.gz
+
 
 jobs:
   build:
@@ -43,20 +44,11 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
     
-    - name: Compress action step
-      uses: a7ul/tar-action@v1.1.0
-      id: compress
-      with:
-        command: c
-        cwd: ${{github.workspace}}
-        files: |
-          ${{github.workspace}}/bin/
-        outPath: ${{github.sha}}-${{env.ARTIFACT_NAME}}
-
+   
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: "ARTIFACT_NAME"
-        path: ${{github.workspace}}/${{github.sha}}-${{env.ARTIFACT_NAME}}
+        name: ${{env.ARTIFACT_NAME}}
+        path: ${{github.workspace}}/bin
         
     
