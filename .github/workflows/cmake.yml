@@ -55,19 +55,28 @@ jobs:
       with:
         name: ${{env.ARTIFACT_NAME}}
         path: artifacts
-
-    - name: Get release
-      id: get_release
-      uses: bruceadams/get-release@v1.3.2
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Changes in this Release
+          - First Change
+          - Second Change
+        draft: false
+        prerelease: false
 
     - name: Upload Release
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.get_release.outputs.upload_url }}
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: artifacts/${{env.ARTIFACT_NAME}}
         asset_name: ${{env.ARTIFACT_NAME}}
         asset_content_type: application/zip
