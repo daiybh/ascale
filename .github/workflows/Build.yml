@@ -43,16 +43,20 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
     
-    - name: ZIP
-      run: |
-        zip -r ${{env.ARTIFACT_NAME}} ${{github.workspace}}/bin/
-        mkdir $GITHUB_WORKSPACE/artifacts
-        cp ${{env.ARTIFACT_NAME}} $GITHUB_WORKSPACE/artifacts/
+    - name: Compress action step
+      uses: a7ul/tar-action@v1.1.0
+      id: compress
+      with:
+        command: c
+        cwd: ./test
+        files: |
+          ${{github.workspace}}/bin/
+        outPath: ${{env.ARTIFACT_NAME}}.tar.gz
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{env.ARTIFACT_NAME}}
-        path: artifacts/
+        name: ${{env.ARTIFACT_NAME}}.tar.gz
+        path: ${{github.workspace}}
         
     
