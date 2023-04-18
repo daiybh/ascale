@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ "master" ]
   release:
-    types: [published]
+    types: [created]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -56,12 +56,18 @@ jobs:
         name: ${{env.ARTIFACT_NAME}}
         path: artifacts
 
+    - name: Get release
+      id: get_release
+      uses: bruceadams/get-release@v1.3.2
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
     - name: Upload Release
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ github.event.release.upload_url }}
+        upload_url: ${{ steps.get_release.outputs.upload_url }}
         asset_path: artifacts/${{env.ARTIFACT_NAME}}
         asset_name: ${{env.ARTIFACT_NAME}}
         asset_content_type: application/zip
