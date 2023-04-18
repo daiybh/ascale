@@ -9,8 +9,13 @@ project ("Fee")
 
 
 
-add_executable(Fee "a.cpp" "uyvy8bit_toAny.h" "pixelHeader.h" "yuv10packing_toAny.h")
-
+add_executable(${PROJECT_NAME} "a.cpp" "uyvy8bit_toAny.h" "pixelHeader.h" "yuv10packing_toAny.h")
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 MESSAGE(STATUS CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
