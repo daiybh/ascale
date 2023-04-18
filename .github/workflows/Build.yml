@@ -11,7 +11,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
-  ARTIFACT_NAME: scale-linux.zip
+  ARTIFACT_NAME: scale-linux.tar.gz
 
 jobs:
   build:
@@ -48,15 +48,15 @@ jobs:
       id: compress
       with:
         command: c
-        cwd: ./test
+        cwd: ${{github.workspace}}
         files: |
           ${{github.workspace}}/bin/
-        outPath: ${{env.ARTIFACT_NAME}}.tar.gz
+        outPath: ${{env.ARTIFACT_NAME}}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{env.ARTIFACT_NAME}}.tar.gz
+        name: ${{env.ARTIFACT_NAME}}
         path: ${{github.workspace}}
         
     
