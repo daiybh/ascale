@@ -4,9 +4,10 @@
 #include "v210_toAny.h"
 #include "uyvy8bit_toAny.h"
 #include "yuv10packing_toAny.h"
-#include <format>
+//#include <format>
 #include <filesystem>
-#define getDestFilePath(x) std::format("{}\\{}",destFolder,x).data()
+#define getDestFilePath(x) (x) 
+//std::format("{}\\{}",destFolder,x).data()
 void test_V210_toAny(const char *_destFolder)
 { 
     char destFolder[255];
@@ -31,8 +32,8 @@ void test_V210_toAny(const char *_destFolder)
     memset(targetUYVY8_Buffer, 0, 1920 * 1080 * 10);
     memset(targetYUV10Packing_Buffer, 0, 1920 * 1080 * 10);
 
-    //先转成 uyvy8
-    // 再通过 uyvy8 转成 yuv10packing
+    //锟斤拷转锟斤拷 uyvy8
+    // 锟斤拷通锟斤拷 uyvy8 转锟斤拷 yuv10packing
     // 
     v210::to_UYVY10packing(sourceBuffer, targetYUV10Packing_Buffer, 1920,1080);
     {
