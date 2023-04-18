@@ -106,4 +106,30 @@ namespace UYVY10bitBytePacking
 			}
 		}
 	}
+
+	static void to_YUV444_960x540(uint8_t* srcUYVY10bitBytePacking, uint8_t* small960Frame, int32_t width, int32_t height)
+	{
+		const uint8_t* src = srcUYVY10bitBytePacking;
+		uint8_t*       dstUYVY = small960Frame;
+
+		int32_t  lineSize = width * 5 / 2;
+		uint16_t values[4];
+		for (unsigned h = 0; h < 540; h++)
+		{
+			for (unsigned w = 0; w < 960; w++)
+			{
+				values[0] = (src[0] << 2) + (src[1] >> 6); //U
+				values[1] = ((src[1] & 0x3f) << 4) + (src[2] >> 4); //Y
+				values[2] = ((src[2] & 0x0f) << 6) + (src[3] >> 2); //V
+				values[3] = ((src[3] & 0x03) << 8) + src[4]; //Y
+
+				*dstUYVY++ = (values[1] >> 2) & 0xFF; // Y
+				*dstUYVY++ = (values[0] >> 2) & 0xFF; // U
+				*dstUYVY++ = (values[2] >> 2) & 0xFF; // V
+
+				src += 5;
+			}
+			src += lineSize;
+		}
+	}
 };
