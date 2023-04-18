@@ -6,6 +6,8 @@
 #include "yuv10packing_toAny.h"
 //#include <format>
 #include <filesystem>
+#include <cstring>
+#include <memory>
 #define getDestFilePath(x) (x) 
 //std::format("{}\\{}",destFolder,x).data()
 void test_V210_toAny(const char *_destFolder)
@@ -21,7 +23,7 @@ void test_V210_toAny(const char *_destFolder)
     uint8_t * targetYUV10Packing_Buffer = new uint8_t[1920 * 1080 * 10];
     uint8_t* sourceBuffer = new uint8_t[1920 * 1080 * 10];
     FILE *fps, *fpD;
-    fopen_s(&fps, R"(d:\clips\v210_1080.yuv)", "rb");
+    fps= fopen( R"(d:\clips\v210_1080.yuv)", "rb");
     fseek(fps, 0, SEEK_END);
     int nLength = ftell(fps);
     rewind(fps);
@@ -37,21 +39,21 @@ void test_V210_toAny(const char *_destFolder)
     // 
     v210::to_UYVY10packing(sourceBuffer, targetYUV10Packing_Buffer, 1920,1080);
     {
-        fopen_s(&fpD, getDestFilePath("v210_to_UYVY10_1920x1080.yuv"), "wb");
+        fpD = fopen( getDestFilePath("v210_to_UYVY10_1920x1080.yuv"), "wb");
         fwrite(targetYUV10Packing_Buffer, 1920 * 1080 * 6, 1, fpD);
         fclose(fpD);
     }
 
     v210::to_UYVY8(sourceBuffer, targetUYVY8_Buffer, 1920, 1080);
     {
-        fopen_s(&fpD, getDestFilePath("v210_to_UYVY8_1920x1080.yuv"), "wb");
+       fpD= fopen(getDestFilePath("v210_to_UYVY8_1920x1080.yuv"), "wb");
         fwrite(targetUYVY8_Buffer, 1920 * 1080 * 6, 1, fpD);
         fclose(fpD);
     }
 
     UYVY8bit::to_UYVY10bitBytePacking(targetUYVY8_Buffer, targetYUV10Packing_Buffer, 1920, 1080);
     {
-        fopen_s(&fpD, getDestFilePath("UYVY8bit_to_UYVY10bit_1920x1080_.yuv"), "wb");
+       fpD= fopen( getDestFilePath("UYVY8bit_to_UYVY10bit_1920x1080_.yuv"), "wb");
         fwrite(targetYUV10Packing_Buffer, 1920 * 1080 * 6, 1, fpD);
         fclose(fpD);
     }
@@ -59,7 +61,7 @@ void test_V210_toAny(const char *_destFolder)
     memset(targetYUV10Packing_Buffer, 0, 1920 * 1080 * 10);
     UYVY8bit::to_v210(targetUYVY8_Buffer, targetYUV10Packing_Buffer, 1920, 1080);
     {
-        fopen_s(&fpD, getDestFilePath("UYVY8bit_to_v210_1920x1080.yuv"), "wb");
+        fpD= fopen(  getDestFilePath("UYVY8bit_to_v210_1920x1080.yuv"), "wb");
         fwrite(targetYUV10Packing_Buffer, 1920 * 1080 * 6, 1, fpD);
         fclose(fpD);
     }
@@ -79,7 +81,7 @@ void test_10packing(const char *_destFolder)
     uint8_t* sourceBuffer = new uint8_t[1920 * 1080 * 10];
     FILE* fps, * fpD;
 
-    fopen_s(&fps, R"(f:\Codes\backend\Test\clips\UYVY_422p10_LE_BytePacking.yuv)", "rb");
+     fps= fopen(  R"(f:\Codes\backend\Test\clips\UYVY_422p10_LE_BytePacking.yuv)", "rb");
 
     fseek(fps, 0, SEEK_END);
     int nLength = ftell(fps);
@@ -90,14 +92,14 @@ void test_10packing(const char *_destFolder)
 
     memset(targetBuffer, 0, 1920 * 1080 * 6);
     UYVY10bitBytePacking::to_V210(sourceBuffer, targetBuffer, 1920, 1080);
-    fopen_s(&fpD, getDestFilePath("10packing_to_V210_1920x1080.yuv"), "wb");
+     fpD= fopen(  getDestFilePath("10packing_to_V210_1920x1080.yuv"), "wb");
     fwrite(targetBuffer, 1920 * 1080 * 6, 1, fpD);
     fclose(fpD);
 
 
     memset(targetBuffer, 0, 1920 * 1080 * 6);
     UYVY10bitBytePacking::to_yuv4448bit(sourceBuffer, targetBuffer, 1920, 1080);
-    fopen_s(&fpD, getDestFilePath("UYVY10bitBytePacking_to_yuv4448bit_1920x1080.yuv"), "wb");
+     fpD= fopen(  getDestFilePath("UYVY10bitBytePacking_to_yuv4448bit_1920x1080.yuv"), "wb");
     fwrite(targetBuffer, 1920 * 1080 * 10, 1, fpD);
     fclose(fpD);
 }
