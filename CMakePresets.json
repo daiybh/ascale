@@ -14,6 +14,20 @@
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe"
             }
+        },
+        {
+            "name": "xxx",
+            "displayName": "XXXX vs2022 - amd64",
+            "description": "Using compilers for Visual Studio 17 2022 (x64 architecture)",
+            "generator": "Visual Studio 17 2022",
+            "toolset": "host=x64",
+            "architecture": "x64",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe"
+            }
         }
     ],
     "buildPresets": [
@@ -21,6 +35,12 @@
             "name": "aa-debug",
             "displayName": "Visual Studio Community 2022 Release - amd64 - Debug",
             "configurePreset": "aa",
+            "configuration": "Debug"
+        },
+        {
+            "name": "xxx-debug",
+            "displayName": "Visual Studio Community 2022 Release - amd64 - Debug",
+            "configurePreset": "xxx",
             "configuration": "Debug"
         }
     ]
