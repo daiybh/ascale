@@ -48,6 +48,7 @@ jobs:
     - name: ZIP
       run: |
         zip -r ${{env.ARTIFACT_NAME}} ${{github.workspace}}/bin/
+        mkdir $GITHUB_WORKSPACE/artifacts
         cp ${{env.ARTIFACT_NAME}} $GITHUB_WORKSPACE/artifacts/
 
     - name: Upload Artifact
