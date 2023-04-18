@@ -3,15 +3,15 @@ name: CI build
 on:
   push:
     branches: [ "master" ]
-    
 
   pull_request:
     branches: [ "master" ]
-  
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+
+  ARTIFACT_NAME: scale-linux.zip
 
 jobs:
   build:
@@ -32,11 +32,27 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-   
+    - name: Install
+      # install to /home/runner/work/ascale/ascale/bin/Fee
+      run: make install
+      working-directory: ${{github.workspace}}/build
+      
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
     
+    - name: ZIP
+      run: |
+        zip -r ${{env.ARTIFACT_NAME}} ${{github.workspace}}/bin/
+        mkdir $GITHUB_WORKSPACE/artifacts
+        cp ${{env.ARTIFACT_NAME}} $GITHUB_WORKSPACE/artifacts/
 
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{env.ARTIFACT_NAME}}
+        path: artifacts/
+        
+    
