@@ -65,7 +65,7 @@ namespace UYVY10bitBytePacking
 		int linePitch = GET_linePitch(width);
 		int lineSize = (width / 48 + ((width % 48) ? 1 : 0)) * 128;
 		int32_t step = linePitch / 6;
-		for (int h = 2; h < height; h++)
+		for (int h = 0; h < height; h++)
 		{
 			Pixel2_1xV210 *ppV210 = (Pixel2_1xV210 *)(targetUYVYV210 + h * lineSize);
 			for (int i = 0; i < step / 5; i++)
