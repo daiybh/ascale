@@ -74,31 +74,38 @@ namespace v210
 		int linePitch = GET_linePitch(width);
 		int lineSize = (width / 48 + ((width % 48) ? 1 : 0)) * 128;
 		unsigned int *buffer = nullptr;
-		int32_t step = linePitch / 6;
+		int32_t step = width / 6;
 		for (int h = 0; h < height; h++)
 		{
-			Pixel2_1xV210* ppV210 = (Pixel2_1xV210*)(pV210 + h * lineSize);
+			auto B10_to_B8 = [&](short svalue0, short svalue1, short svalue2, short svalue3)
+			{
+				uint8_t value0 = (svalue0 >> 2) & 0xFF;
+				uint8_t value1 = (svalue1 >> 2) & 0xFF;
+				uint8_t value2 = (svalue2 >> 2) & 0xFF;
+				uint8_t value3 = (svalue3 >> 2) & 0xFF;
+				uint8_t src[4] = {value0, value1, value2, value3};
+
+				*pUyvy8++ = (src[0]);
+				*pUyvy8++ = (src[1]);
+				*pUyvy8++ = (src[2]);
+				*pUyvy8++ = (src[3]);
+			};
+
+			Pixel2_1xV210 *ppV210 = (Pixel2_1xV210 *)(pV210 + h * lineSize);
+
 			for (int i = 0; i < step; i++)
 			{
-				auto B10_to_B8 = [&](short svalue0, short svalue1, short svalue2, short svalue3)
-				{
-					uint8_t value0 = (svalue0 >> 2) & 0xFF;
-					uint8_t value1 = (svalue1 >> 2) & 0xFF;
-					uint8_t value2 = (svalue2 >> 2) & 0xFF;
-					uint8_t value3 = (svalue3 >> 2) & 0xFF;
-					uint8_t src[4] = { value0,value1,value2,value3 };
-
-					*pUyvy8++ = (src[0]);
-					*pUyvy8++ = (src[1]);
-					*pUyvy8++ = (src[2]);
-					*pUyvy8++ = (src[3]);					
-				};
-				Pixel2_1xV210* p0 = ppV210++;
+				Pixel2_1xV210 *p0 = ppV210++;
 
 				B10_to_B8(p0->U0, p0->Y0, p0->V0, p0->Y1);
 				B10_to_B8(p0->U1, p0->Y2, p0->V1, p0->Y3);
 				B10_to_B8(p0->U2, p0->Y4, p0->V2, p0->Y5);
-				
+			}
+			int left = width - step * 6;
+			Pixel2_1xV210 *p0 = ppV210;
+			for (int i = 0; i < left/2; i++)
+			{
+				B10_to_B8(p0->U0, p0->Y0, p0->V0, p0->Y1);
 			}
 		}
 	}
