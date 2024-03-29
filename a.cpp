@@ -104,10 +104,10 @@ void test_10packing(const char *_destFolder)
 int main()
 {   
     const char *destFolder = R"(d:\clips\)";
-   // test_10packing(destFolder);
+    test_10packing(destFolder);
 
     test_V210_toAny(destFolder,1920,1080);
     test_V210_toAny(destFolder, 1280,720);
-    //covert_V210_t0_10packing(destFolder);
+    covert_V210_t0_10packing(destFolder);
     return 0;
 }
