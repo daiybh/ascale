@@ -8,7 +8,9 @@
 #include <filesystem>
 #include <cstring>
 #include <memory>
-#define getDestFilePath(pre) std::format("{}\\{}_{}x{}.yuv",destFolder,pre,w,h).data()
+#include "p216_toAny.h"
+#include "pa16_toAny.h"
+#include "define.h"
 void test_V210_toAny(const char *_destFolder,int w,int h)
 { 
     char destFolder[255];
@@ -104,10 +106,13 @@ void test_10packing(const char *_destFolder)
 int main()
 {   
     const char *destFolder = R"(d:\clips\)";
-    test_10packing(destFolder);
+   
+   // test_p216(destFolder);
+    test_pA16(destFolder);
+   // test_10packing(destFolder);
 
-    test_V210_toAny(destFolder,1920,1080);
-    test_V210_toAny(destFolder, 1280,720);
-    covert_V210_t0_10packing(destFolder);
+    //test_V210_toAny(destFolder,1920,1080);
+   // test_V210_toAny(destFolder, 1280,720);
+    
     return 0;
 }
