@@ -35,7 +35,9 @@ namespace PA16
 				*pUyvy8++ = (y2>>8)&0xFF;
 			}
 		}
-	}void to_yuv422(uint8_t* pA16, int srcWidth, int srcHeight, uint8_t* pUyvy8, int width, int height, uint8_t* alphaBuffer)
+	}
+	template<typename T>
+	void to_yuv422(uint8_t* pA16, int srcWidth, int srcHeight, T* pUyvy8, int width, int height, uint8_t* alphaBuffer)
 	{
 		//PA16 4224 16pp with NV12
 		//YYYYYYYYYYYYYYYY
@@ -44,21 +46,29 @@ namespace PA16
 
 		uint16_t* pA16Y = (uint16_t*)pA16;
 		uint16_t* pA16U = (uint16_t*)(pA16 + srcWidth * srcHeight * 2);
-		uint8_t* pAlpha = pA16 + srcHeight * srcWidth * 2 * 2;
-		memcpy(alphaBuffer, pAlpha, srcWidth * srcHeight);
-		uint16_t* destY = (uint16_t*)pUyvy8;
-		uint16_t* destU = (uint16_t*)(pUyvy8 + srcHeight * srcWidth * 2);
-		uint16_t* destV = (uint16_t*)(pUyvy8 + srcHeight * srcWidth);
-
+		uint16_t* pAlpha = (uint16_t*)(pA16 + srcHeight * srcWidth * 2 * 2);
+		//memcpy(alphaBuffer, pAlpha, srcWidth * srcHeight);
+		auto destY = (T*)pUyvy8;
+		auto destU = (T*)(pUyvy8 + srcHeight * srcWidth );
+		auto destV = (T*)(pUyvy8 + srcHeight * srcWidth*3/2);
+		auto destAlpha = (T*)alphaBuffer;
 		//*
 		//memcpy(destY, pA16Y,1920 * 1080 * 2);		return;
-
+		auto flag = std::is_same_v<T, uint16_t>;
+		auto pLimit = [&flag](uint16_t v)
+			{
+				if (flag)return v;
+				return uint16_t((v >> 8) & 0xff);
+			};
 		for (int x = 0; x < srcWidth * srcHeight / 2; x++)
 		{
-			*destY++ = *pA16Y++;
-			*destY++ = *pA16Y++;
-			*destU++ = *pA16U++;
-			//*destV++ = *pA16U++;
+			*destY++ = pLimit(*pA16Y++);
+			*destY++ = pLimit(*pA16Y++);
+			*destU++ = pLimit(*pA16U++);
+			*destV++ = pLimit(*pA16U++);			
+
+			*destAlpha++ = pLimit(*pAlpha++);
+			*destAlpha++ = pLimit(*pAlpha++);
 		}
 		return;/**/
 	}
@@ -115,10 +125,12 @@ void test_pA16(const char* _destFolder)
 	//yyyy w*h*2
 	//uv   w*h*2
 	//alpha w*h*2
-	FILE* fps, * fpD, * fpDAlpha;
+	FILE* fps, * fpD, * fpD16, * fpDAlpha;
 
-	fps = fopen(R"(D:\clips\p216\pa16.yuv)", "rb");
+	//fps = fopen(R"(D:\clips\p216\pa16.yuv)", "rb");
+	fps = fopen(R"(Z:\Cloud Sync\clips\YUV files\ClipsFromBryan\recPA16.yuv)", "rb");
 	fpD = fopen(getDestFilePath("pA16_to_yuv4228bit_1920x1080.yuv"), "wb");
+	fpD16 = fopen(getDestFilePath("pA16_to_yuv4228bit_1920x1080_16.yuv"), "wb");
 	fpDAlpha = fopen(getDestFilePath("pA16_to_yuv4228bit_1920x1080_alpha.yuv"), "wb");
 
 
@@ -129,10 +141,16 @@ void test_pA16(const char* _destFolder)
 
 		memset(targetBuffer, 0, 1920 * 1080 * 6);
 		memset(alphaBuffer, 0, 1920 * 1080 * 6);
-		//PA16::to_yuv422(sourceBuffer, 1920, 1080, targetBuffer, 1920, 1080, alphaBuffer);
-		PA16::to_yuv444_480270(sourceBuffer, 1920, 1080, targetBuffer);
+		PA16::to_yuv422(sourceBuffer, 1920, 1080, targetBuffer, 1920, 1080, alphaBuffer);
+		 fwrite(targetBuffer, 1920*1080*2, 1, fpD);
+		 fwrite(alphaBuffer, 1920*1080*2, 1, fpD);
 
-		fwrite(targetBuffer, 480*270 * 3, 1, fpD);
+		 uint16_t* pDest = (uint16_t*)targetBuffer;
+		 PA16::to_yuv422(sourceBuffer, 1920, 1080, pDest, 1920, 1080, alphaBuffer);
+		 fwrite(targetBuffer, 1920 * 1080 * 2*2, 1, fpD16);
+		 fwrite(alphaBuffer, 1920 * 1080 * 2*2, 1, fpD16);
+		//PA16::to_yuv444_480270(sourceBuffer, 1920, 1080, targetBuffer);
+		//fwrite(targetBuffer, 480*270 * 3, 1, fpD);
 	}
 	fclose(fpD);
 	fclose(fps);
