@@ -8,8 +8,8 @@
 #include <filesystem>
 #include <cstring>
 #include <memory>
-#include "p216_toAny.h"
-#include "pa16_toAny.h"
+#include "P216_toAny.h"
+#include "PA16_toAny.h"
 #include "define.h"
 void test_V210_toAny(const char *_destFolder,int w,int h)
 { 
