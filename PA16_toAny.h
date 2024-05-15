@@ -84,9 +84,34 @@ namespace PA16
 		uint8_t* pBGU = pBGY + 480 * 270;
 		uint8_t* pBGV = pBGU + 480 * 270/2;
 
-		//1920-->480   4
-		//1080-->270   4
-		auto pKey = [](uint16_t alpha,uint16_t value,uint16_t bg)
+		//1920-->480   4/1
+		//1080-->270   4/1
+
+		//1280-->480   8/3
+		//720--->270   8/3
+
+		//3840-->480   8
+		//2160-->270   8
+		struct ScaleCoe
+		{
+			int source;
+			int dest;
+		};
+		ScaleCoe widthCoe = { 4,1 };
+		ScaleCoe heightCoe = { 4,1 };
+
+		if (srcWidth == 1280)
+		{
+			widthCoe = { 8,3 };
+			heightCoe = { 8,3 };
+		}
+		else if (srcWidth == 3840)
+		{
+			widthCoe = { 8,1 };
+			heightCoe = { 8,1 };
+		}
+
+		auto pKey = [](uint16_t alpha, uint16_t value, uint16_t bg)
 			{
 				if (alpha == 0xeb00)
 				{
@@ -94,30 +119,38 @@ namespace PA16
 				}
 				return bg;
 			};
-		for (int h = 0; h < srcHeight; h += 4)
-		{
-			uint16_t* pLIneY = pA16Y + h * srcWidth;
-			uint16_t* pLIneU = pA16U + h * srcWidth;
+		auto pickOnePixel = [&](int h, int w) {
+
+			uint16_t* pLineY = pA16Y + h * srcWidth;
+			uint16_t* pLineU = pA16U + h * srcWidth;
 			uint16_t* pLineAlpha = pAlpha + h * srcWidth;
 
-			for (int w = 0; w < srcWidth; w += 2 * 4)
-			{
-				uint16_t y1 = pLIneY[w];
-				uint16_t u = pLIneU[w];
-				uint16_t v = pLIneU[w + 1];
-				uint16_t y2 = pLIneY[w + 1];
-				uint16_t alpha_1 = pLineAlpha[w];
-				uint16_t alpha_2 = pLineAlpha[w+1];
-				
-				*destY++ = pKey(alpha_1 ,(y1 >> 8) & 0xFF, *pBGY++);
-				*destY++ = pKey(alpha_1 ,(u >> 8) & 0xFF, *pBGU);
-				*destY++ = pKey(alpha_1 ,(v >> 8) & 0xFF, *pBGV);
+			uint16_t y1 = pLineY[w];
+			uint16_t u = pLineU[w];
+			uint16_t v = pLineU[w + 1];
+			uint16_t y2 = pLineY[w + 1];
+			uint16_t alpha_1 = pLineAlpha[w];
+			uint16_t alpha_2 = pLineAlpha[w + 1];
 
-				*destY++ = pKey(alpha_2, (y2 >> 8) & 0xFF, *pBGY++);
-				*destY++ = pKey(alpha_2, (u >> 8) & 0xFF, *pBGU++);
-				*destY++ = pKey(alpha_2, (v >> 8) & 0xFF, *pBGV++);
-				
+			*destY++ = pKey(alpha_1, (y1 >> 8) & 0xFF, *pBGY++);
+			*destY++ = pKey(alpha_1, (u >> 8) & 0xFF, *pBGU);
+			*destY++ = pKey(alpha_1, (v >> 8) & 0xFF, *pBGV);
+
+			*destY++ = pKey(alpha_2, (y2 >> 8) & 0xFF, *pBGY++);
+			*destY++ = pKey(alpha_2, (u >> 8) & 0xFF, *pBGU++);
+			*destY++ = pKey(alpha_2, (v >> 8) & 0xFF, *pBGV++);
+			};
+		auto pickOneLine = [&](int h) {
+			for (int w = 0; w < srcWidth; w += 2 * widthCoe.source)
+			{
+				for (int i = 0; i < widthCoe.dest; i++)
+					pickOnePixel(h, w + i * 2);
 			}
+			};
+		for (int h = 0; h < srcHeight; h += heightCoe.source)
+		{
+			for (int i = 0; i < heightCoe.dest; i++)
+				pickOneLine(h + i);
 		}
 	}
 	void* prepareBackGround(uint8_t* pBackGroud,int width=480,int height=270)
