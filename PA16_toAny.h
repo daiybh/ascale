@@ -72,7 +72,7 @@ namespace PA16
 		}
 		return;/**/
 	}
-	void to_yuv444_480270(uint8_t* pA16, int srcWidth, int srcHeight, uint8_t* pYUV444)
+	void to_yuv444_480270(uint8_t* pA16, int srcWidth, int srcHeight, uint8_t* pYUV444,uint8_t*pBackGround)
 	{
 		uint16_t* pA16Y = (uint16_t*)pA16;
 		uint16_t* pA16U = (uint16_t*)(pA16 + srcWidth * srcHeight * 2);
@@ -80,31 +80,82 @@ namespace PA16
 
 		uint8_t* destY = (uint8_t*)pYUV444;
 
+		uint8_t* pBGY = pBackGround;
+		uint8_t* pBGU = pBGY + 480 * 270;
+		uint8_t* pBGV = pBGU + 480 * 270/2;
+
 		//1920-->480   4
 		//1080-->270   4
-
+		auto pKey = [](uint16_t alpha,uint16_t value,uint16_t bg)
+			{
+				if (alpha == 0xeb00)
+				{
+					return value;
+				}
+				return bg;
+			};
 		for (int h = 0; h < srcHeight; h += 4)
 		{
 			uint16_t* pLIneY = pA16Y + h * srcWidth;
 			uint16_t* pLIneU = pA16U + h * srcWidth;
+			uint16_t* pLineAlpha = pAlpha + h * srcWidth;
+
 			for (int w = 0; w < srcWidth; w += 2 * 4)
 			{
 				uint16_t y1 = pLIneY[w];
 				uint16_t u = pLIneU[w];
 				uint16_t v = pLIneU[w + 1];
 				uint16_t y2 = pLIneY[w + 1];
+				uint16_t alpha_1 = pLineAlpha[w];
+				uint16_t alpha_2 = pLineAlpha[w+1];
+				
+				*destY++ = pKey(alpha_1 ,(y1 >> 8) & 0xFF, *pBGY++);
+				*destY++ = pKey(alpha_1 ,(u >> 8) & 0xFF, *pBGU);
+				*destY++ = pKey(alpha_1 ,(v >> 8) & 0xFF, *pBGV);
 
-				*destY++ = (y1 >> 8) & 0xFF;
-				*destY++ = (u >> 8) & 0xFF;
-				*destY++ = (v >> 8) & 0xFF;
-
-				*destY++ = (y2 >> 8) & 0xFF;
-				*destY++ = (u >> 8) & 0xFF;
-				*destY++ = (v >> 8) & 0xFF;
+				*destY++ = pKey(alpha_2, (y2 >> 8) & 0xFF, *pBGY++);
+				*destY++ = pKey(alpha_2, (u >> 8) & 0xFF, *pBGU++);
+				*destY++ = pKey(alpha_2, (v >> 8) & 0xFF, *pBGV++);
+				
 			}
 		}
 	}
-	
+	void* prepareBackGround(uint8_t* pBackGroud,int width=480,int height=270)
+	{
+		int gridWidth = 16;
+		int gridHeight = 16;
+
+		int gridLine = 0;
+
+		uint8_t* pBackGround8bits = pBackGroud;
+		if(pBackGroud==nullptr)
+			pBackGround8bits=new uint8_t[width * height * 4];
+		gridLine = 0;
+		// FFFFFF ,D9D9D9
+		memset(pBackGround8bits, 0xFF, width * height * 4);
+		memset(pBackGround8bits + width * height, 0x80, width * height);
+		for (int h = 0; h < height - gridHeight; h += gridHeight)
+		{
+			for (int w = 0; w < width; w += gridWidth * 2)
+			{
+				for (int gridH = 0; gridH < gridHeight; gridH++)
+				{
+					unsigned char *y = pBackGround8bits + (width * (h + gridH) + w + ((gridLine % 2 == 0) ? 0 : gridWidth)) * 1;
+					memset(y, 0xCB, gridWidth);
+				}
+			}
+			++gridLine;
+		}
+		for (int w = 0; w < width; w += gridWidth * 2)
+		{
+			for (int gridH = 0; gridH < (height - (gridHeight * (height / gridHeight))); gridH++)
+			{
+				unsigned char *y = pBackGround8bits + (width * (gridLine * gridHeight + gridH) + w + ((gridLine % 2 == 0) ? 0 : gridWidth));
+				memset(y, 0xCB, gridWidth);
+			}
+		}
+		return pBackGround8bits;
+	}
 }
 
 #define getDestFilePath(pre) std::format("{}\\{}_{}x{}.yuv",destFolder,pre,w,h).data()
@@ -121,6 +172,7 @@ void test_pA16(const char* _destFolder)
 	uint8_t* targetBuffer = new uint8_t[1920 * 1080 * 10];
 	uint8_t* sourceBuffer = new uint8_t[1920 * 1080 * 10];
 	uint8_t* alphaBuffer = new uint8_t[1920 * 1080 * 10];
+	uint8_t* pBackGroud = new uint8_t[1920 * 1080 * 10];
 	int nLength = w * h * 2 * 3;
 	//yyyy w*h*2
 	//uv   w*h*2
@@ -133,6 +185,9 @@ void test_pA16(const char* _destFolder)
 	fpD16 = fopen(getDestFilePath("pA16_to_yuv4228bit_1920x1080_16.yuv"), "wb");
 	fpDAlpha = fopen(getDestFilePath("pA16_to_yuv4228bit_1920x1080_alpha.yuv"), "wb");
 
+	 PA16::prepareBackGround(pBackGroud);
+	fwrite(pBackGroud,480*270*3,1, fpD);
+	
 
 	for (int i = 0; i < 100; i++)
 	{
@@ -141,16 +196,18 @@ void test_pA16(const char* _destFolder)
 
 		memset(targetBuffer, 0, 1920 * 1080 * 6);
 		memset(alphaBuffer, 0, 1920 * 1080 * 6);
-		PA16::to_yuv422(sourceBuffer, 1920, 1080, targetBuffer, 1920, 1080, alphaBuffer);
-		 fwrite(targetBuffer, 1920*1080*2, 1, fpD);
-		 fwrite(alphaBuffer, 1920*1080*2, 1, fpD);
+		
+		//PA16::to_yuv422(sourceBuffer, 1920, 1080, targetBuffer, 1920, 1080, alphaBuffer);
+		 //fwrite(targetBuffer, 1920*1080*2, 1, fpD);
+		 //fwrite(alphaBuffer, 1920*1080*2, 1, fpD);
 
 		 uint16_t* pDest = (uint16_t*)targetBuffer;
 		 PA16::to_yuv422(sourceBuffer, 1920, 1080, pDest, 1920, 1080, alphaBuffer);
 		 fwrite(targetBuffer, 1920 * 1080 * 2*2, 1, fpD16);
 		 fwrite(alphaBuffer, 1920 * 1080 * 2*2, 1, fpD16);
-		//PA16::to_yuv444_480270(sourceBuffer, 1920, 1080, targetBuffer);
-		//fwrite(targetBuffer, 480*270 * 3, 1, fpD);
+		 /**/
+		PA16::to_yuv444_480270(sourceBuffer, 1920, 1080, targetBuffer,pBackGroud);
+		fwrite(targetBuffer, 480*270 * 3, 1, fpD);
 	}
 	fclose(fpD);
 	fclose(fps);
