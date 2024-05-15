@@ -78,7 +78,7 @@ namespace PA16
 		uint16_t* pA16U = (uint16_t*)(pA16 + srcWidth * srcHeight * 2);
 		uint16_t* pAlpha = (uint16_t*)(pA16 + srcHeight * srcWidth * 2 * 2);
 
-		uint8_t* destY = (uint8_t*)pYUV444;
+		uint8_t* destYUV444 = (uint8_t*)pYUV444;
 
 		uint8_t* pBGY = pBackGround;
 		uint8_t* pBGU = pBGY + 480 * 270;
@@ -132,13 +132,13 @@ namespace PA16
 			uint16_t alpha_1 = pLineAlpha[w];
 			uint16_t alpha_2 = pLineAlpha[w + 1];
 
-			*destY++ = pKey(alpha_1, (y1 >> 8) & 0xFF, *pBGY++);
-			*destY++ = pKey(alpha_1, (u >> 8) & 0xFF, *pBGU);
-			*destY++ = pKey(alpha_1, (v >> 8) & 0xFF, *pBGV);
+			*destYUV444++ = pKey(alpha_1, (y1 >> 8) & 0xFF, *pBGY++);
+			*destYUV444++ = pKey(alpha_1, (u >> 8) & 0xFF, *pBGU);
+			*destYUV444++ = pKey(alpha_1, (v >> 8) & 0xFF, *pBGV);
 
-			*destY++ = pKey(alpha_2, (y2 >> 8) & 0xFF, *pBGY++);
-			*destY++ = pKey(alpha_2, (u >> 8) & 0xFF, *pBGU++);
-			*destY++ = pKey(alpha_2, (v >> 8) & 0xFF, *pBGV++);
+			*destYUV444++ = pKey(alpha_2, (y2 >> 8) & 0xFF, *pBGY++);
+			*destYUV444++ = pKey(alpha_2, (u >> 8) & 0xFF, *pBGU++);
+			*destYUV444++ = pKey(alpha_2, (v >> 8) & 0xFF, *pBGV++);
 			};
 		auto pickOneLine = [&](int h) {
 			for (int w = 0; w < srcWidth; w += 2 * widthCoe.source)
