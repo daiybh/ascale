@@ -9,6 +9,10 @@ namespace P216
 	//P216 4224 16pp with NV12
 	//YYYYYYYYYYYYYYYY
 	//UV  UV  UV  UV
+	// 
+	// https://docs.rs/ndi/latest/ndi/enum.FourCCVideoType.html#variant.P216
+	// p216 in ffmpeg is p21le 
+	//ffmpeg -f rawvideo -pix_fmt uyvy422 -s:v 1920x1080 -i E:\1080i50.yuv -c:v rawvideo -pix_fmt p216le E:\clips\output_file(p216le).yuv
 
 	void to_UYVY8(uint8_t* p216,int srcWidth,int srcHeight, uint8_t* pUyvy8, int width, int height)
 	{
