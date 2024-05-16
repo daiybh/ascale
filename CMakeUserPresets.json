@@ -1,0 +1,9 @@
+{
+    "version": 4,
+    "vendor": {
+        "conan": {}
+    },
+    "include": [
+        "C:\\Users\\daili\\Desktop\\ascale\\a\\build\\generators\\CMakePresets.json"
+    ]
+}

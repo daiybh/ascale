@@ -220,7 +220,7 @@ void test_pA16(const char *_destFolder)
 	FILE *fps, *fpD, *fpD16, *fpDAlpha;
 
 	// fps = fopen(R"(D:\clips\p216\pa16.yuv)", "rb");
-	fps = fopen(R"(Z:\Cloud Sync\clips\YUV files\ClipsFromBryan\recPA16.yuv)", "rb");
+	fps = fopen(R"(E:\clips\recPA16.yuv)", "rb");
 	fpD = fopen(getDestFilePath("pA16_to_yuv4228bit_1920x1080.yuv"), "wb");
 	fpD16 = fopen(getDestFilePath("pA16_to_yuv4228bit_1920x1080_16.yuv"), "wb");
 	fpDAlpha = fopen(getDestFilePath("pA16_to_yuv4228bit_1920x1080_alpha.yuv"), "wb");
