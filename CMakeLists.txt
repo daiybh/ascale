@@ -6,14 +6,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 project ("Fee")
+#[[
 find_package(SDL2 REQUIRED CONFIG)
 find_package(SDL2_image REQUIRED CONFIG)
 find_package(SDL2_ttf REQUIRED CONFIG)
-
+]]
 
 #add_executable(${PROJECT_NAME} "a.cpp" "uyvy8bit_toAny.h" "pixelHeader.h" "yuv10packing_toAny.h")
 add_executable(yuvConv "source/a.cpp")
-
+#[[
 add_executable(${PROJECT_NAME} "source/main_sdl.cpp")
 
 target_link_directories(${PROJECT_NAME} PRIVATE "source/")
@@ -38,3 +39,4 @@ install (TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 if(WIN32)
 install(FILES $<TARGET_PDB_FILE:${PROJECT_NAME}> DESTINATION ${CMAKE_INSTALL_PREFIX} OPTIONAL)
 endif(WIN32)
+]]
