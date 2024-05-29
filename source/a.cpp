@@ -103,12 +103,18 @@ void test_10packing(const char *_destFolder)
     fwrite(targetBuffer, 1920 * 1080 * 10, 1, fpD);
     fclose(fpD);
 }
-int main()
-{   
-    const char *destFolder = R"(d:\clips\)";
+
+int main(int argc,char*argv[])
+{
+    return action_PA16_to_V210(argc, argv);
    
+
+	//checkRange(argv[1]);
+//	return 0;
+
+    const char *destFolder = R"(d:\clips\)";
    // test_p216(destFolder);
-    test_pA16(destFolder);
+    //test_pA16(destFolder);
    // test_10packing(destFolder);
 
     //test_V210_toAny(destFolder,1920,1080);
