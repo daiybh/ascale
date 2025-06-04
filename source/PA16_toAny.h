@@ -111,6 +111,53 @@ namespace PA16
 		}
 		return; /**/
 	}
+
+	
+	void to_rgba(uint8_t* pA16, int srcWidth, int srcHeight, uint8_t* pRGBA, int width, int height, uint8_t* alphaBuffer)
+	{
+		// PA16 4224 16pp with NV12
+		// YYYYYYYYYYYYYYYY
+		// UV  UV  UV  UV
+		// AAAAAAAAAAAAAAAA
+
+		uint16_t* pA16Y = (uint16_t*)pA16;
+		uint16_t* pA16U = (uint16_t*)(pA16 + srcWidth * srcHeight * 2);
+		uint16_t* pAlpha = (uint16_t*)(pA16 + srcHeight * srcWidth * 2 * 2);
+		// memcpy(alphaBuffer, pAlpha, srcWidth * srcHeight);
+		
+		//*
+		// memcpy(destY, pA16Y,1920 * 1080 * 2);		return;
+		auto pLimit = [](uint16_t v)
+			{
+				return uint16_t((v >> 8) & 0xff);
+			};
+		uint8_t* cur = pRGBA;
+		auto yuvtoRGB = [&](int y, int u, int v, int alpha) {
+			y = y - 16;    // Y1
+			u = u - 128;   // U
+			v = v - 128;   // V
+			(*cur) = clip((298 * y + 409 * v + 128) >> 8); cur++;
+			(*cur) = clip((298 * y - 100 * u - 208 * v + 128) >> 8); cur++;
+			(*cur) = clip((298 * y + 516 * u + 128) >> 8); cur++;
+			(*cur) = clip(alpha); cur++;
+			};
+		for (int x = 0; x < srcWidth * srcHeight / 2; x++)
+		{
+			uint16_t y1 = pLimit(*pA16Y++);
+			uint16_t y2 = pLimit(*pA16Y++);
+			uint16_t u = pLimit(*pA16U++);
+			uint16_t v= pLimit(*pA16U++);
+
+			uint16_t alpha1 = pLimit(*pAlpha++);
+			uint16_t alpha2= pLimit(*pAlpha++);
+			yuvtoRGB(y1, u, v,alpha1);
+			yuvtoRGB(y2, u, v,alpha2);
+
+			//*destAlpha++ = pLimit(*pAlpha++);
+			//*destAlpha++ = pLimit(*pAlpha++);
+		}
+		return; /**/
+	}
 	void to_yuv444_480270(uint8_t* pA16, int srcWidth, int srcHeight, uint8_t* pYUV444, uint8_t* pBackGround)
 	{
 		uint16_t* pA16Y = (uint16_t*)pA16;
@@ -310,6 +357,52 @@ void test_pA16_toyuv444(const char* _destFolder)
 	fclose(fpD);
 	fclose(fps);
 }
+
+void test_pA16_toyuv422(const char* pa16FilePath, const char* destFilePath)
+{
+	FILE* fpPA16;
+	fpPA16 = fopen(pa16FilePath, "rb");
+	if (fpPA16 == nullptr)
+	{
+		printf("open file failed. [%s]", pa16FilePath);
+		return;
+	}
+	FILE* fpV210;
+	fpV210 = fopen(destFilePath, "wb");
+	if (fpV210 == nullptr)
+	{
+		printf("open file failed. [%s]", destFilePath);
+		return;
+	}
+
+	int w = 1920;
+	int h = 1080;
+	uint8_t* targetBuffer = new uint8_t[1920 * 1080 * 10];
+	uint8_t* sourceBuffer = new uint8_t[1920 * 1080 * 10];
+	uint8_t* alphaBUffer = new uint8_t[1920 * 1080 * 10];
+	int nLength = w * h * 2 * 3;
+
+
+#define GET_linePitch(w) (((w + 47) / 48) * 48)
+
+	int linePitch = GET_linePitch(1920);
+	int oneSize = 1920*1080*2;
+	for (int i = 0;; i++)
+	{
+		if (1 != fread(sourceBuffer, nLength, 1, fpPA16))
+		{
+			break;
+		}
+		memset(targetBuffer, 0, 1920 * 1080 * 6);
+
+		 PA16::to_rgba(sourceBuffer, 1920, 1080, targetBuffer,1920,1080, alphaBUffer);
+		fwrite(targetBuffer, oneSize, 1, fpV210);
+		printf("%d\r", i);
+	}
+	fclose(fpPA16);
+	fclose(fpV210);
+
+}
 void test_pA16_toV210(const char* pa16FilePath, const char* destFilePath)
 {
 	FILE* fpPA16;
@@ -364,7 +457,8 @@ int action_PA16_to_V210(int argc, char* argv[]) {
 
 
 	//test_pA16_toV210(R"(E:\clips\aPA16-1_1920x1080.yuv)", R"(e:\clips\recPA16_to_v210_1920x1080.yuv)");
-	test_pA16_toV210(argv[1], argv[2]);
+	//test_pA16_toV210(argv[1], argv[2]);
+	test_pA16_toyuv422(argv[1], argv[2]);
 	return 0;
 }
 

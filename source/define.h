@@ -1,1 +1,1 @@
-#define getDestFilePath(pre) std::format("{}\\{}_{}x{}.yuv",destFolder,pre,w,h).data()
+#define getDestFilePath(pre) std::format("{}\\{}_{}-{}.yuv",destFolder,pre,w,h).data()
