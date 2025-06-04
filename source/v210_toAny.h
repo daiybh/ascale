@@ -116,51 +116,40 @@ namespace v210
 		*cur++ = (e >> 2) & 0xFF;
 	};
 	void V210_to_YUV_Any(uint8_t *small960Frame, uint8_t *fullFrame,
-							  int width, int height,
-							  int destWidth, int destHeight)
+						 int width, int height,
+						 int destWidth, int destHeight)
 	{
-		// 计算缩放比例
-		int scale_x = width / destWidth;
-		int scale_y = height / destHeight;
+		float scale_x = (float)width / destWidth;
+		float scale_y = (float)height / destHeight;
 
 		int t_width = destWidth * 3; // 每行字节数
 #define GET_linePitch(w) (((w + 47) / 48) * 48)
 		int32_t linePitch = GET_linePitch(width);
 		int32_t lineSize = (width / 48 + ((width % 48) ? 1 : 0)) * 128;
-		printf("\n");
+
 		for (int dy = 0; dy < destHeight; ++dy)
 		{
 			uint8_t *cur = small960Frame + dy * t_width;
-			int sy = dy * scale_y; // 源图像采样行
+			int sy = (int)(dy * scale_y + 0.5f); // 源图像采样行，四舍五入
 			int32_t *buffer = (int32_t *)(fullFrame + sy * lineSize);
 
-			// 每组 Pixel2_1xV210 结构体包含 6 个像素
 			int src_pixels_per_group = 6;
-			int groups = width / src_pixels_per_group;
-			// 3840y--->960y   4/1
-				// 3840y--->480y   8/1
-				//
-				// 1920y--->960y   2/1
-				// 1920y--->480y   4/1
 			for (int dx = 0; dx < destWidth; ++dx)
 			{
-				int sx = dx * scale_x; // 源图像采样列
+				int sx = (int)(dx * scale_x + 0.5f); // 源图像采样列，四舍五入
 				int group_idx = sx / src_pixels_per_group;
 				int pixel_in_group = sx % src_pixels_per_group;
 
 				Pixel2_1xV210 *p = ((Pixel2_1xV210 *)buffer) + group_idx;
-				if(dy==0 && dx<10)
-				printf("w:%2d->%2d scale:%2d,%2d dy:%2d dx:%2d sx:%2d group_idx:%2d pixel_in_group:%2d ,p :%p\n",width,destWidth,scale_x,scale_y,dy,dx,sx,group_idx,pixel_in_group,p);
-				// 取出对应像素的 YUV 分量
 				int y = 0, u = 0, v = 0;
 				switch (pixel_in_group)
 				{
-				case 0:					y = p->Y0;					u = p->U0;					v = p->V0;					break;
-				case 1:					y = p->Y1;					u = p->U0;					v = p->V0;					break;
-				case 2:					y = p->Y2;					u = p->U1;					v = p->V1;					break;
-				case 3:					y = p->Y3;					u = p->U1;					v = p->V1;					break;
-				case 4:					y = p->Y4;					u = p->U2;					v = p->V2;					break;
-				case 5:					y = p->Y5;					u = p->U2;					v = p->V2;					break;
+				case 0: y = p->Y0; u = p->U0; v = p->V0; break;
+				case 1: y = p->Y1; u = p->U0; v = p->V0; break;
+				case 2: y = p->Y2; u = p->U1; v = p->V1; break;
+				case 3: y = p->Y3; u = p->U1; v = p->V1; break;
+				case 4: y = p->Y4; u = p->U2; v = p->V2; break;
+				case 5: y = p->Y5; u = p->U2; v = p->V2; break;
 				}
 				handleYUV_3840(cur, y, u, v);
 			}
