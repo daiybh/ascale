@@ -2,10 +2,10 @@ name: CI build
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "masterX" ]
 
   pull_request:
-    branches: [ "master" ]
+    branches: [ "masterX" ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
