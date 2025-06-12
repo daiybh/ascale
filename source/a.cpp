@@ -12,6 +12,38 @@
 #include "PA16_toAny.h"
 #include "define.h"
 
+#include <chrono>
+using namespace std::chrono;
+void test_v210_toAny_FPS()
+{
+    int w = 3840,h = 2160;
+	uint8_t* targetUYVY8_Buffer = new uint8_t[w * h * 10];
+	uint8_t* targetYUV10Packing_Buffer = new uint8_t[w * h * 10];
+	uint8_t* sourceBuffer = new uint8_t[w * h * 10];
+	
+	memset(targetUYVY8_Buffer, 0, w * h * 10);
+
+
+	auto PFunc = [&](int sourceW, int sourceH, int destW, int destH)
+		{
+
+			time_point<std::chrono::system_clock> start = system_clock::now();
+
+			for(int i=0;i<1000;i++)
+				v210::V210_to_YUV_Any(targetUYVY8_Buffer, sourceBuffer, sourceW, sourceH,destW,destH);
+
+			time_point<system_clock> end = system_clock::now();
+
+			std::chrono::duration<double> elapsed = end - start;
+			std::cout<<std::format("{}x{}-->{}x{}",sourceW,sourceH,destW,destH) << "Elapsed time: " << elapsed.count() << "s" << "/" << 1000 << " pertimes:" << elapsed.count() / 1000 << std::endl;
+
+		};
+    PFunc(1920, 1080, 960, 540);
+    PFunc(1920, 1080, 480, 270);
+
+	PFunc(3840, 2160, 960, 540);
+	PFunc(3840, 2160, 480, 270);
+}
 void test_1080V210(const char* _destFolder)
 {
 	char destFolder[255];
@@ -42,23 +74,7 @@ void test_1080V210(const char* _destFolder)
 		fclose(fpD);
 	}
 
-	memset(targetUYVY8_Buffer, 0, w * h * 10);
-	Scaler_1920_1080::V210_to_YUV480x270(targetUYVY8_Buffer, sourceBuffer);
-
-	{
-		fpD = fopen(getDestFilePath("v210_to_yuv_480x270"), "wb");
-		fwrite(targetUYVY8_Buffer, 480 * 270 * 3, 1, fpD);
-		fclose(fpD);
-	}
-
-	memset(targetUYVY8_Buffer, 0, w * h * 10);
-	Scaler_1920_1080::V210_to_YUV480x270_2(targetUYVY8_Buffer, sourceBuffer);
-
-	{
-		fpD = fopen(getDestFilePath("V210_to_YUV480x270_2"), "wb");
-		fwrite(targetUYVY8_Buffer, 480 * 270 * 3, 1, fpD);
-		fclose(fpD);
-	}
+	
 
     w = 1920; h = 1080;
 	memset(targetUYVY8_Buffer, 0, w * h * 10);
@@ -183,7 +199,8 @@ int main(int argc,char*argv[])
 
 	//checkRange(argv[1]);
 //	return 0;
-
+    test_v210_toAny_FPS();
+    return 0;
     const char *destFolder = R"(d:\clips\)";
    // test_p216(destFolder);
     //test_pA16(destFolder);
