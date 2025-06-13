@@ -14,16 +14,23 @@
 #include <functional>
 #include <chrono>
 using namespace std::chrono;
-void test_v210_toAny_FPS()
+
+void test_v210_toAny_FPS(int i,FILE* fpcsv)
 {
 	int w = 3840, h = 2160;
-	uint8_t* targetUYVY8_Buffer = new uint8_t[w * h * 10];
-	uint8_t* targetYUV10Packing_Buffer = new uint8_t[w * h * 10];
-	uint8_t* sourceBuffer = new uint8_t[w * h * 10];
+	
+std::shared_ptr<uint8_t[]> targetUYVY8_Buffer_shared(new uint8_t[w * h * 10]);
+std::shared_ptr<uint8_t[]> targetYUV10Packing_Buffer_shared(new uint8_t[w * h * 10]);
+std::shared_ptr<uint8_t[]> sourceBuffer_shared(new uint8_t[w * h * 10]);
+
+	uint8_t* targetUYVY8_Buffer = targetUYVY8_Buffer_shared.get();
+	uint8_t* targetYUV10Packing_Buffer = targetYUV10Packing_Buffer_shared.get();
+	uint8_t* sourceBuffer = sourceBuffer_shared.get();
 
 	memset(targetUYVY8_Buffer, 0, w * h * 10);
+	std::cout << std::endl;
 
-
+	
 	auto pElapsedFunc = [&](std::function<void()> func) {
 		time_point<std::chrono::system_clock> start = system_clock::now();
 		int runCount = 10000;
@@ -38,6 +45,8 @@ void test_v210_toAny_FPS()
 			<< el << "ms/" << runCount << " "
 			<< el / runCount << "ms/perframe" << std::endl;
 		//  return std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
+
+		fprintf(fpcsv, "%5.2f,", el / runCount);
 		};
 	auto PFunc = [&](int sourceW, int sourceH, int destW, int destH)
 		{
@@ -56,6 +65,13 @@ void test_v210_toAny_FPS()
 
 	PFunc(3840, 2160, 960, 540);
 	PFunc(3840, 2160, 480, 270);*/
+	if (i == 0)
+	{
+		fprintf(fpcsv, "1920x1080-->480x270 NEW,1920x1080-->480x270 old,");
+		fprintf(fpcsv, "3840x2160-->480x270 new,3840x2160-->480x270 old,");
+		fprintf(fpcsv, "1920x1080-->960x540 new,1920x1080-->960x540 old,");
+		fprintf(fpcsv, "3840x2160-->960x540 new,3840x2160-->960x540 old,\n");
+	}
 	{
 		std::cout << "1920x1080-->480x270 V210_to_YUV_4_to_1";
 		pElapsedFunc([&]() {
@@ -67,6 +83,21 @@ void test_v210_toAny_FPS()
 		pElapsedFunc([&]() {
 
 			v210::Scaler_1920_1080_V210_to_YUV480x270(targetUYVY8_Buffer, sourceBuffer);
+			});
+
+	}
+	std::cout << std::endl;
+	{
+		std::cout << "3840x2160-->480x270 V210_to_YUV_8_to_1";
+		pElapsedFunc([&]() {
+			v210::V210_to_YUV_8_to_1(targetUYVY8_Buffer, sourceBuffer, 3840, 2160, 480, 270);
+			});
+	}
+
+	{
+		std::cout << "3840x2160-->480x270       OLD         ";
+		pElapsedFunc([&]() {
+			v210::Scaler_3840_2160_V210_to_YUV480x270(targetUYVY8_Buffer, sourceBuffer);
 			});
 
 	}
@@ -86,21 +117,6 @@ void test_v210_toAny_FPS()
 
 	}
 
-	std::cout << std::endl;
-	{
-		std::cout << "3840x2160-->480x270 V210_to_YUV_8_to_1";
-		pElapsedFunc([&]() {
-			v210::V210_to_YUV_4_to_1(targetUYVY8_Buffer, sourceBuffer, 3840,2160, 480, 270);
-			});
-	}
-
-	{
-		std::cout << "3840x2160-->480x270       OLD         ";
-		pElapsedFunc([&]() {
-			v210::Scaler_3840_2160_V210_to_YUV480x270(targetUYVY8_Buffer, sourceBuffer);
-			});
-
-	}
 
 	std::cout << std::endl;
 	{
@@ -117,7 +133,6 @@ void test_v210_toAny_FPS()
 
 	}
 
-	getchar();
 	
 }
 void test_1080V210(const char* _destFolder)
@@ -282,7 +297,16 @@ int main(int argc, char* argv[])
 
 	 //checkRange(argv[1]);
  //	return 0;
-	test_v210_toAny_FPS();return 0;
+	FILE* fpcsv = fopen("c:\\logs\\aa.csv", "a+");
+	
+	for (int i = 0; i < 100; i++)
+	{
+		test_v210_toAny_FPS(i,fpcsv);
+		fprintf(fpcsv, "\n");
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+	fflush(fpcsv);
+	return 0;
 	const char* destFolder = R"(d:\clips\)";
 	// test_p216(destFolder);
 	 //test_pA16(destFolder);

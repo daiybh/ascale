@@ -181,19 +181,25 @@ namespace v210
 		int width, int height,
 		int destWidth, int destHeight)
 	{
-		float scale_x = (float)width / destWidth;
-		float scale_y = (float)height / destHeight;
+		int scale_x = width / destWidth;
+		int scale_y =height / destHeight;
 
 		int t_width = destWidth * 3; // 每行字节数
 #define GET_linePitch(w) (((w + 47) / 48) * 48)
 		int32_t linePitch = GET_linePitch(width);
 		int32_t lineSize = (width / 48 + ((width % 48) ? 1 : 0)) * 128;
+	/*	#define  handleYUV_3840(cur,  c,  d,  e) \
+		{  \
+			*cur++ = (c >> 2) & 0xFF; \
+			*cur++ = (d >> 2) & 0xFF; \
+			*cur++ = (e >> 2) & 0xFF; \
+		};*/
 
 		int32_t  step = linePitch / 24;
 		for (int dy = 0; dy < destHeight; ++dy)
 		{
 			uint8_t* cur = small960Frame + dy * t_width;
-			int sy = (int)(dy * scale_y + 0.5f); // 源图像采样行，四舍五入
+			int sy = dy * scale_y; 
 			Pixel2_1xV210* p = (Pixel2_1xV210*)(fullFrame + sy * lineSize);
 			for (int dx = 0; dx < step; ++dx)
 			{
@@ -208,8 +214,8 @@ namespace v210
 		int width, int height,
 		int destWidth, int destHeight)
 	{
-		float scale_x = (float)width / destWidth;
-		float scale_y = (float)height / destHeight;
+		int scale_x = width / destWidth;
+		int scale_y = height / destHeight;
 
 		int t_width = destWidth * 3; // 每行字节数
 #define GET_linePitch(w) (((w + 47) / 48) * 48)
@@ -220,7 +226,7 @@ namespace v210
 		for (int dy = 0; dy < destHeight; ++dy)
 		{
 			uint8_t* cur = small960Frame + dy * t_width;
-			int sy = (int)(dy * scale_y + 0.5f); // 源图像采样行，四舍五入
+			int sy = dy * scale_y;
 			Pixel2_1xV210* p = (Pixel2_1xV210*)(fullFrame + sy * lineSize);
 			for (int dx = 0; dx < step; ++dx)
 			{
@@ -236,8 +242,8 @@ namespace v210
 		int width, int height,
 		int destWidth, int destHeight)
 	{
-		float scale_x = (float)width / destWidth;
-		float scale_y = (float)height / destHeight;
+		int scale_x = width / destWidth;
+		int scale_y = height / destHeight;
 
 		int t_width = destWidth * 3; // 每行字节数
 #define GET_linePitch(w) (((w + 47) / 48) * 48)
@@ -248,7 +254,7 @@ namespace v210
 		for (int dy = 0; dy < destHeight; ++dy)
 		{
 			uint8_t* cur = small960Frame + dy * t_width;
-			int sy = (int)(dy * scale_y + 0.5f); // 源图像采样行，四舍五入
+			int sy = dy * scale_y;
 			Pixel2_1xV210* p = (Pixel2_1xV210*)(fullFrame + sy * lineSize);
 			for (int dx = 0; dx < step; ++dx)
 			{
